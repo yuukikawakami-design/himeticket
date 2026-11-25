@@ -1,693 +1,61 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ヒメチケ (HIME-TICKET) | 社内専用プレイガイド</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts (Inter & Noto Sans JP) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Noto Sans JP"', '"Inter"', 'sans-serif'],
-                    },
-                    colors: {
-                        hime: {
-                            blue: '#005BAC',
-                            dark: '#004488',
-                            light: '#EBF4FC',
-                            orange: '#FF8C00',
-                            orangeHover: '#E67E00',
-                            yellow: '#FFD700',
-                            bg: '#F4F6F9',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            background-color: #FFFFFF;
-            color: #1E293B;
-            -webkit-tap-highlight-color: transparent;
-        }
-        /* ポスターカード画像・自動バナーのホバーズーム */
-        .poster-card:hover .poster-media {
-            transform: scale(1.04);
-        }
-        .poster-media {
-            transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        /* 電子引換証モーダル用のミシン目ノッチ（暗背景対応） */
-        .voucher-perforation {
-            position: relative;
-            border-top: 2px dashed #94A3B8;
-        }
-        .voucher-perforation::before,
-        .voucher-perforation::after {
-            content: '';
-            position: absolute;
-            top: -11px;
-            width: 20px;
-            height: 20px;
-            border-radius: 9999px;
-            background-color: #0F172A;
-        }
-        .voucher-perforation::before {
-            left: -11px;
-        }
-        .voucher-perforation::after {
-            right: -11px;
-        }
-
-        /* 装飾用バーコード風ストライプ */
-        .ticket-barcode {
-            height: 34px;
-            background: repeating-linear-gradient(
-                90deg,
-                #0F172A 0px, #0F172A 2px,
-                transparent 2px, transparent 5px,
-                #0F172A 5px, #0F172A 9px,
-                transparent 9px, transparent 11px,
-                #0F172A 11px, #0F172A 12px,
-                transparent 12px, transparent 16px,
-                #0F172A 16px, #0F172A 19px,
-                transparent 19px, transparent 22px
-            );
-        }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col bg-white">
-
-    <!-- 最上部ユーティリティバー -->
-    <div class="bg-[#00366B] text-blue-100 text-[11px] py-1.5 px-4 border-b border-blue-800/60">
-        <div class="max-w-6xl mx-auto flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 truncate">
-                <span class="bg-hime-yellow text-slate-950 font-black px-1.5 py-0.2 rounded text-[10px] shrink-0">社内専用</span>
-                <span class="truncate">ログイン不要・先着順リアルタイム受付！確定画面をスクショしてチケット窓口へお越しください。</span>
-            </div>
-            <div class="hidden sm:flex items-center gap-1.5 text-emerald-300 font-bold shrink-0">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>リアルタイム残席同期中</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- ロイヤルブルー メインナビゲーションヘッダー -->
-    <header class="bg-hime-blue text-white sticky top-0 z-30 shadow-md">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
-            <!-- 「ヒメチケ」オリジナルロゴ -->
-            <div class="flex items-center gap-3 cursor-pointer group" onclick="switchMode('user')">
-                <div class="relative flex items-center bg-white text-hime-blue px-3 py-1.5 rounded-lg shadow-sm border-2 border-hime-yellow group-hover:scale-[1.02] transition-transform">
-                    <i class="ph-fill ph-ticket text-hime-orange text-2xl mr-1.5"></i>
-                    <span class="font-black text-xl sm:text-2xl tracking-tighter leading-none text-hime-blue">ヒメチケ</span>
-                    <span class="ml-1.5 bg-hime-blue text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-xs tracking-wider hidden xs:inline-block">GUIDE</span>
-                </div>
-                <div class="hidden md:block">
-                    <p class="text-xs font-extrabold tracking-wide text-hime-yellow leading-tight">HIME-TICKET</p>
-                    <p class="text-[11px] text-blue-100 font-medium">社内福利厚生・チケット譲渡プレイガイド</p>
-                </div>
-            </div>
-
-            <!-- 右側ナビゲーションボタン群 -->
-            <div class="flex items-center gap-2 sm:gap-3">
-                <!-- マイチケット（申込控え） -->
-                <button onclick="openMyReceiptsModal()" class="px-3 sm:px-4 py-2 rounded-lg text-xs font-bold bg-white text-hime-blue hover:bg-blue-50 shadow-xs transition-all flex items-center gap-1.5 relative">
-                    <i class="ph-fill ph-ticket text-hime-orange text-base"></i>
-                    <span>マイチケット</span>
-                    <span class="hidden sm:inline text-[11px] font-normal text-slate-500">(控え)</span>
-                    <span id="receipt-count-badge" class="hidden bg-rose-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">0</span>
-                </button>
-
-                <!-- 管理者メニューボタン -->
-                <button id="admin-toggle-btn" onclick="handleAdminButtonClick()" class="px-3 sm:px-3.5 py-2 rounded-lg text-xs font-bold bg-[#004488] hover:bg-[#003366] text-white border border-blue-400/40 transition-colors flex items-center gap-1.5">
-                    <i class="ph-bold ph-lock-key text-hime-yellow text-base"></i>
-                    <span class="hidden sm:inline">管理者メニュー</span>
-                    <span class="sm:hidden">管理</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- メインコンテンツ -->
-    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
-
-        <!-- ============================================================== -->
-        <!-- モード1: 申込者画面（チケットぴあ風 ポスターカード一覧）      -->
-        <!-- ============================================================== -->
-        <section id="view-user" class="space-y-6">
-
-            <!-- クリーンな案内バー（白背景に調和するコンパクト設計） -->
-            <div class="bg-[#F8FAFC] border border-slate-200/90 rounded-2xl px-4 py-3.5 sm:px-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
-                <div class="flex items-center gap-2.5 text-xs sm:text-sm">
-                    <span class="bg-hime-blue text-white font-black text-[11px] px-2.5 py-0.5 rounded shrink-0">ご利用方法</span>
-                    <p class="text-slate-700 font-medium">
-                        ログイン不要・先着順！気になるチケットを選んで申し込み、<strong class="text-hime-blue font-black">確定画面のスクショ</strong>を窓口へご提示ください。
-                    </p>
-                </div>
-                <div class="flex items-center gap-2 text-[11px] font-bold text-slate-500 shrink-0">
-                    <span class="bg-white border border-slate-200 px-2.5 py-1 rounded-lg">1. チケット選択</span>
-                    <i class="ph-bold ph-caret-right text-slate-400"></i>
-                    <span class="bg-white border border-slate-200 px-2.5 py-1 rounded-lg">2. 枚数確定</span>
-                    <i class="ph-bold ph-caret-right text-slate-400"></i>
-                    <span class="bg-hime-light text-hime-blue border border-blue-200 px-2.5 py-1 rounded-lg">3. スクショ提示</span>
-                </div>
-            </div>
-
-            <!-- チケットぴあ風 セクション見出し（下線アクセント＆フィルター切替） -->
-            <div class="border-b-2 border-hime-blue pb-3 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-                <div class="flex items-center gap-2.5">
-                    <i class="ph-fill ph-ticket text-hime-blue text-2xl"></i>
-                    <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">受付中のチケット一覧</h1>
-                    <span id="user-visible-count" class="text-xs font-black bg-hime-light text-hime-blue px-2.5 py-0.5 rounded-full">0件</span>
-                </div>
-
-                <!-- 表示フィルター切替タブ（すべて / 残席ありのみ / お気に入り） -->
-                <div class="flex items-center gap-1.5 flex-wrap">
-                    <button type="button" id="filter-btn-all" onclick="setUserFilter('all')"
-                        class="px-3.5 py-1.5 rounded-full text-xs font-black bg-hime-blue text-white transition-colors">
-                        すべて表示
-                    </button>
-                    <button type="button" id="filter-btn-available" onclick="setUserFilter('available')"
-                        class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">
-                        残席ありのみ
-                    </button>
-                    <button type="button" id="filter-btn-favorites" onclick="setUserFilter('favorites')"
-                        class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors flex items-center gap-1">
-                        <i class="ph-fill ph-heart text-rose-500"></i>
-                        <span>お気に入り</span>
-                        <span id="fav-filter-count" class="text-[10px] font-black text-slate-500"></span>
-                    </button>
-                </div>
-            </div>
-
+<!-- ... existing code ... -->
             <!-- ローディング表示 -->
             <div id="user-loading" class="py-20 text-center space-y-3">
                 <div class="inline-block w-9 h-9 border-4 border-blue-200 border-t-hime-blue rounded-full animate-spin"></div>
                 <p class="text-sm text-slate-600 font-bold">最新の残席情報を取得しています...</p>
             </div>
 
-            <!-- ポスターカード一覧グリッド（PC: 4〜5列 / スマホ: 2列） -->
-            <div id="user-tickets-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-4 sm:gap-x-5 gap-y-7">
-                <!-- JSで動的にプレイガイド風ポスターカードを描画 -->
-            </div>
-
-            <!-- 0件表示 -->
-            <div id="user-empty-state" class="hidden bg-slate-50 rounded-2xl border border-slate-200 p-12 text-center space-y-2">
-                <i class="ph-fill ph-ticket text-5xl text-slate-300"></i>
-                <h3 class="text-base font-black text-slate-800">該当するチケットはありません</h3>
-                <p class="text-xs text-slate-500">表示フィルターを切り替えるか、新しいチケットが出品されるまでお待ちください。</p>
-            </div>
-        </section>
-
-        <!-- ============================================================== -->
-        <!-- モード2: 管理者ダッシュボード（パスコード認証後に表示）         -->
-        <!-- ============================================================== -->
-        <section id="view-admin" class="hidden space-y-7">
-            <!-- 管理者ヘッダーバナー -->
-            <div class="bg-hime-dark text-white rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md border border-blue-700">
-                <div class="flex items-center gap-3.5">
-                    <div class="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-hime-yellow shrink-0">
-                        <i class="ph-fill ph-shield-check text-3xl"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <h2 class="text-lg sm:text-xl font-black">ヒメチケ 管理者コンソール</h2>
-                            <span class="text-[11px] bg-hime-orange text-white px-2.5 py-0.5 rounded-full font-black">窓口担当者モード</span>
-                        </div>
-                        <p class="text-xs text-blue-100 mt-0.5">新規公演の出品、残席・受付状態の切り替え、申込者一覧の確認と引換ステータス管理が行えます。</p>
+            <!-- Firestore未作成・権限エラー等のわかりやすい案内バナー -->
+            <div id="firestore-notice-banner" class="hidden bg-amber-50 border border-amber-300 rounded-2xl p-4 sm:p-5 space-y-2.5">
+                <div class="flex items-start gap-3">
+                    <i class="ph-fill ph-warning-circle text-amber-600 text-2xl shrink-0 mt-0.5"></i>
+                    <div class="space-y-1 text-xs sm:text-sm text-amber-950">
+                        <p id="firestore-notice-title" class="font-black">データベース（Firestore）との通信を確認してください</p>
+                        <p id="firestore-notice-detail" class="text-xs text-amber-900 leading-relaxed"></p>
                     </div>
                 </div>
-                <button onclick="switchMode('user')" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-white text-hime-blue hover:bg-blue-50 shadow-xs transition-colors flex items-center justify-center gap-1.5 shrink-0">
-                    <i class="ph-bold ph-arrow-left"></i>
-                    プレイガイド画面に戻る
-                </button>
             </div>
 
-            <!-- 上段：新規チケット出品フォーム & 出品中チケット管理リスト -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- 左5カラム：新規チケット出品フォーム -->
-                <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden self-start">
-                    <div class="bg-hime-blue text-white px-5 py-3.5 flex items-center gap-2">
-                        <i class="ph-fill ph-plus-circle text-hime-yellow text-xl"></i>
-                        <h3 class="font-black text-base">新規チケット（公演）を出品</h3>
-                    </div>
-                    <form id="admin-add-ticket-form" onsubmit="handleCreateTicket(event)" class="p-5 space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">公演名・チケット名 <span class="text-rose-600">*</span></label>
-                            <input type="text" id="admin-t-title" required placeholder="例：プロ野球公式戦 内野指定席S（ペア可）"
-                                class="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-hime-blue">
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">公演日時 / 有効期限 <span class="text-rose-600">*</span></label>
-                                <input type="text" id="admin-t-datetime" required placeholder="例：2026/12/15(火) 18:00開演"
-                                    class="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-hime-blue">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">会場・施設名 <span class="text-rose-600">*</span></label>
-                                <input type="text" id="admin-t-venue" required placeholder="例：みずほPayPayドーム福岡"
-                                    class="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-hime-blue">
-                            </div>
-                        </div>
-
+            <!-- ポスターカード一覧グリッド（PC: 4〜5列 / スマホ: 2列） -->
+<!-- ... existing code ... -->
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">1枚あたり料金（税込円） <span class="text-rose-600">*</span></label>
                                 <input type="number" id="admin-t-price" required min="0" step="100" value="0" placeholder="0（無料は0）"
                                     class="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-hime-blue">
-                                <p class="text-[10px] text-slate-500 mt-0.5">※0円入力で「無料招待」表示</p>
+                                <p class="text-[10px] text-slate-500 mt-0.5">※0円入力で「無料」表示</p>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">提供総枚数 <span class="text-rose-600">*</span></label>
-                                <input type="number" id="admin-t-total" required min="1" max="100" value="2"
+                                <input type="number" id="admin-t-total" required min="1" max="500" value="2"
                                     class="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-hime-blue">
                             </div>
                         </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">チケット引換窓口・担当者メモ <span class="text-rose-600">*</span></label>
-                            <textarea id="admin-t-memo" rows="2" required placeholder="例：本社3F 総務部・佐藤のデスクまで、引換証スクショを持って取りに来てください。"
-                                class="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-hime-blue"></textarea>
-                        </div>
-
-                        <!-- ポスター画像URL（任意）＆ 自動ポスターカラー選択 -->
-                        <div class="pt-1 border-t border-slate-100 space-y-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">
-                                    ポスター画像URL <span class="text-slate-400 font-normal">(任意・空欄なら自動デザイン)</span>
-                                </label>
-                                <input type="url" id="admin-t-image" placeholder="https://example.com/poster.jpg"
-                                    class="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-hime-blue">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1.5">
-                                    自動バナーカラー <span class="text-slate-400 font-normal">(画像なし時に使用)</span>
-                                </label>
-                                <input type="hidden" id="admin-t-theme" value="royal">
-                                <div id="theme-selector-group" class="grid grid-cols-6 gap-2">
-                                    <button type="button" data-theme="royal" onclick="selectBannerTheme('royal')" title="ロイヤルブルー"
-                                        class="theme-swatch h-8 rounded-lg bg-gradient-to-br from-[#005BAC] to-[#002B5B] ring-2 ring-offset-2 ring-hime-blue transition-all"></button>
-                                    <button type="button" data-theme="sunset" onclick="selectBannerTheme('sunset')" title="サンセットオレンジ"
-                                        class="theme-swatch h-8 rounded-lg bg-gradient-to-br from-[#FF6B00] to-[#C81E51] opacity-75 hover:opacity-100 transition-all"></button>
-                                    <button type="button" data-theme="emerald" onclick="selectBannerTheme('emerald')" title="エメラルドグリーン"
-                                        class="theme-swatch h-8 rounded-lg bg-gradient-to-br from-[#059669] to-[#064E3B] opacity-75 hover:opacity-100 transition-all"></button>
-                                    <button type="button" data-theme="purple" onclick="selectBannerTheme('purple')" title="ロイヤルパープル"
-                                        class="theme-swatch h-8 rounded-lg bg-gradient-to-br from-[#6D28D9] to-[#311068] opacity-75 hover:opacity-100 transition-all"></button>
-                                    <button type="button" data-theme="crimson" onclick="selectBannerTheme('crimson')" title="クリムゾンレッド"
-                                        class="theme-swatch h-8 rounded-lg bg-gradient-to-br from-[#DC2626] to-[#7F1D1D] opacity-75 hover:opacity-100 transition-all"></button>
-                                    <button type="button" data-theme="midnight" onclick="selectBannerTheme('midnight')" title="ミッドナイトゴールド"
-                                        class="theme-swatch h-8 rounded-lg bg-gradient-to-br from-[#1E293B] to-[#090D16] opacity-75 hover:opacity-100 transition-all"></button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <button type="submit" id="admin-create-btn" class="w-full py-3 px-4 rounded-xl text-sm font-black bg-hime-orange hover:bg-hime-orangeHover text-white shadow-sm transition-colors flex items-center justify-center gap-2">
-                            <i class="ph-bold ph-plus-circle text-lg"></i>
-                            この内容でチケットを出品する
-                        </button>
-                    </form>
-                </div>
-
-                <!-- 右7カラム：出品中チケット管理リスト -->
-                <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-                    <div class="bg-slate-50 px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
-                        <h3 class="font-black text-base text-slate-900 flex items-center gap-2">
-                            <i class="ph-fill ph-ticket text-hime-blue text-xl"></i>
-                            出品中の公演・在庫管理
-                        </h3>
-                        <span id="admin-tickets-count" class="text-xs font-black bg-hime-light text-hime-blue px-3 py-0.5 rounded-full">0件</span>
-                    </div>
-                    <div id="admin-tickets-list" class="divide-y divide-slate-100 max-h-[520px] overflow-y-auto">
-                        <!-- JSで動的に描画 -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- 下段：申込者一覧（リアルタイムリスト） -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-                <div class="bg-slate-50 px-5 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div>
-                        <h3 class="font-black text-base text-slate-900 flex items-center gap-2">
-                            <i class="ph-fill ph-users-three text-hime-blue text-xl"></i>
-                            申込者・発券リスト（リアルタイム同期）
-                        </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">窓口で引換証スクショを確認したら、ステータスをクリックして「引換済」に変更してください。</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span id="admin-apps-count" class="text-xs font-black bg-hime-light text-hime-blue px-3 py-1.5 rounded-xl">計 0件</span>
-                        <button onclick="exportApplicationsCSV()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors flex items-center gap-1.5">
-                            <i class="ph-bold ph-download-simple text-sm"></i>
-                            CSV出力
-                        </button>
-                    </div>
-                </div>
-
-                <!-- レスポンシブテーブル -->
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-100/80 border-b border-slate-200 text-[11px] font-black text-slate-600 uppercase tracking-wider">
-                                <th class="py-3 px-4">引換番号 / 申込日時</th>
-                                <th class="py-3 px-4">申込者（部署・氏名）</th>
-                                <th class="py-3 px-4">公演・チケット名</th>
-                                <th class="py-3 px-4">枚数 / 合計</th>
-                                <th class="py-3 px-4">連絡先・備考</th>
-                                <th class="py-3 px-4">窓口引換状態</th>
-                                <th class="py-3 px-4 text-right">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-applications-tbody" class="divide-y divide-slate-100 text-xs">
-                            <!-- JSで動的に描画 -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- フッター -->
-    <footer class="bg-white border-t border-slate-200 mt-12 py-6 px-4 text-center text-xs text-slate-500">
-        <div class="flex items-center justify-center gap-2 font-black text-hime-blue mb-1">
-            <i class="ph-fill ph-ticket text-hime-orange text-base"></i>
-            <span>ヒメチケ (HIME-TICKET)</span>
-        </div>
-        <p>社内専用チケット譲渡プレイガイド — 営利転売禁止・社員福利厚生専用</p>
-    </footer>
-
-    <!-- ====================================================================== -->
-    <!-- モーダル1: チケット申し込み入力モーダル（プレイガイド購入手続き風）     -->
-    <!-- ====================================================================== -->
-    <div id="apply-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-slate-900/65 backdrop-blur-xs" onclick="closeModal('apply-modal')"></div>
-        <div class="flex min-h-full items-center justify-center p-4">
-            <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
-                <!-- ヘッダー -->
-                <div class="bg-hime-blue text-white px-5 py-3.5 flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="bg-hime-yellow text-slate-950 font-black text-[10px] px-2 py-0.5 rounded">ヒメチケ</span>
-                        <h3 class="font-black text-base">お申し込み内容の入力</h3>
-                    </div>
-                    <button onclick="closeModal('apply-modal')" class="text-blue-100 hover:text-white p-1 rounded-lg">
-                        <i class="ph-bold ph-x text-lg"></i>
-                    </button>
-                </div>
-                <!-- 選択中公演概要（ポスタープレビュー・日時会場・窓口案内を含む） -->
-                <div id="apply-ticket-info" class="bg-hime-light/60 px-5 py-4 border-b border-blue-100 text-xs space-y-2.5">
-                    <!-- JSで挿入 -->
-                </div>
-
-                <!-- 予定枚数終了時の案内ボックス -->
-                <div id="apply-soldout-notice" class="hidden p-6 text-center space-y-3">
-                    <span class="inline-block bg-slate-200 text-slate-700 text-xs font-black px-3 py-1 rounded-full">予定枚数終了</span>
-                    <p class="text-sm font-bold text-slate-800">このチケットは予定枚数を終了しました。</p>
-                    <p class="text-xs text-slate-500">キャンセルが出た場合はリアルタイムで残席が復活します。</p>
-                    <button type="button" onclick="closeModal('apply-modal')" class="w-full py-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700">
-                        一覧へ戻る
-                    </button>
-                </div>
-
-                <form id="apply-form" onsubmit="handleApplySubmit(event)" class="p-5 space-y-4">
-                    <input type="hidden" id="apply-ticket-id">
-
-                    <!-- 希望枚数（＋/−ステッパー＆セレクト） & 合計金額 -->
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <label class="text-xs font-black text-slate-800">希望枚数を選択 <span class="text-rose-600">*</span></label>
-                            <span id="apply-max-note" class="text-[11px] font-bold text-hime-blue">残り 0枚</span>
-                        </div>
-                        <div class="flex items-center justify-between gap-3">
-                            <div class="flex items-center gap-1.5">
-                                <button type="button" onclick="stepApplyQuantity(-1)" class="w-10 h-10 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 font-black text-lg text-slate-700 flex items-center justify-center shadow-2xs active:scale-95">
-                                    −
-                                </button>
-                                <select id="apply-quantity" onchange="updateApplyTotalPrice()" required class="w-24 h-10 px-2 bg-white border-2 border-hime-blue rounded-xl text-center text-base font-black text-hime-blue focus:outline-none">
-                                    <!-- JSで生成 -->
-                                </select>
-                                <button type="button" onclick="stepApplyQuantity(1)" class="w-10 h-10 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 font-black text-lg text-slate-700 flex items-center justify-center shadow-2xs active:scale-95">
-                                    ＋
-                                </button>
-                            </div>
-                            <div class="text-right">
-                                <span class="block text-[10px] font-bold text-slate-500">お支払い合計（税込）</span>
-                                <span id="apply-total-display" class="text-xl font-black text-hime-orange">¥0</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 部署名・チーム名 -->
-                    <div>
-                        <label class="block text-xs font-black text-slate-800 mb-1">部署名・チーム名（または内線） <span class="text-rose-600">*</span></label>
-                        <input type="text" id="apply-department" required placeholder="例：営業部 第一課 / 内線1234"
-                            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-hime-blue">
-                    </div>
-
-                    <!-- 氏名（フルネーム） -->
-                    <div>
-                        <label class="block text-xs font-black text-slate-800 mb-1">お名前（フルネーム） <span class="text-rose-600">*</span></label>
-                        <input type="text" id="apply-fullname" required placeholder="例：山田 太郎"
-                            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-hime-blue">
-                    </div>
-
-                    <!-- 連絡先・備考（任意） -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">受け取り予定・備考 <span class="text-slate-400 font-normal">(任意)</span></label>
-                        <input type="text" id="apply-note" placeholder="例：本日17時頃に窓口へ伺います"
-                            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-hime-blue">
-                    </div>
-
-                    <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-slate-100">
-                        <button type="button" onclick="closeModal('apply-modal')" class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">
-                            戻る
-                        </button>
-                        <button type="submit" id="apply-submit-btn" class="flex-1 sm:flex-initial px-6 py-3 rounded-xl text-sm font-black bg-hime-orange hover:bg-hime-orangeHover text-white shadow-md transition-all flex items-center justify-center gap-1.5">
-                            <i class="ph-bold ph-check-circle text-lg"></i>
-                            申し込みを確定する
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- ====================================================================== -->
-    <!-- モーダル2: 電子チケット風「ヒメチケ 社内引換証（スクショ画面）」       -->
-    <!-- ====================================================================== -->
-    <div id="voucher-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-slate-900/85 backdrop-blur-xs"></div>
-        <div class="flex min-h-full items-center justify-center p-3 sm:p-4">
-            <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border-2 border-hime-blue">
-                
-                <!-- スクショ案内トップ警告帯 -->
-                <div class="bg-hime-yellow text-slate-950 px-3 py-2.5 text-center font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 border-b border-amber-400">
-                    <span class="text-base">📸</span>
-                    <span>この画面をスクリーンショットしてチケット担当者へご提示ください</span>
-                </div>
-
-                <!-- ヒメチケ 発券チケットヘッダー帯 -->
-                <div class="bg-hime-blue text-white px-5 py-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="bg-white text-hime-blue font-black text-xs px-2 py-0.5 rounded">ヒメチケ</span>
-                            <span class="text-xs font-extrabold tracking-wider text-blue-100">社内電子引換証</span>
-                        </div>
-                        <span class="bg-emerald-400 text-slate-950 text-[11px] font-black px-2.5 py-0.5 rounded-full">発券確定済</span>
-                    </div>
-
-                    <div class="mt-3 flex items-end justify-between">
-                        <div>
-                            <span class="block text-[10px] font-bold text-blue-200 uppercase">引換受付番号</span>
-                            <div id="voucher-receipt-no" class="text-3xl sm:text-4xl font-black tracking-wider font-mono text-hime-yellow leading-none mt-0.5">#HT-0000</div>
-                        </div>
-                        <div class="text-right">
-                            <span class="block text-[10px] text-blue-200">発券日時</span>
-                            <span id="voucher-created-at" class="text-xs font-bold text-white">2026/11/25 10:49</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- チケット半券ミシン目 -->
-                <div class="voucher-perforation bg-white"></div>
-
-                <!-- 引換証チケット券面本体 -->
-                <div class="bg-white px-5 pb-5 pt-4 space-y-4">
-                    <!-- 公演タイトル・日時会場 -->
-                    <div class="border-b border-slate-200 pb-3">
-                        <span class="inline-block bg-hime-light text-hime-blue text-[10px] font-black px-2 py-0.5 rounded mb-1">公演・チケット名称</span>
-                        <h4 id="voucher-ticket-title" class="text-base sm:text-lg font-black text-slate-900 leading-snug">公演名</h4>
-                        <p id="voucher-ticket-datetime" class="text-xs font-medium text-slate-600 mt-1">日時・会場</p>
-                    </div>
-
-                    <!-- 券種・枚数・料金ボックス（プレイガイド券面風） -->
-                    <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                        <div>
-                            <span class="block text-[10px] font-bold text-slate-500">お申込者（部署・氏名）</span>
-                            <span id="voucher-applicant" class="block text-sm font-black text-slate-900 mt-0.5">営業部 山田 太郎</span>
-                        </div>
-                        <div class="text-right border-l border-slate-200 pl-3">
-                            <span class="block text-[10px] font-bold text-slate-500">社内枠 / 枚数・合計</span>
-                            <span id="voucher-qty-price" class="block text-sm font-black text-hime-orange mt-0.5">2枚 / ¥5,000</span>
-                        </div>
-                    </div>
-
-                    <!-- チケット引換窓口・担当者情報 -->
-                    <div class="bg-hime-light/80 border border-blue-200 rounded-xl p-3.5 space-y-1">
-                        <div class="flex items-center gap-1.5 text-xs font-black text-hime-blue">
-                            <i class="ph-fill ph-map-pin text-hime-orange text-base"></i>
-                            <span>チケット引換窓口・持ち主情報</span>
-                        </div>
-                        <p id="voucher-memo" class="text-xs text-slate-800 font-bold leading-relaxed">
-                            本社3F 総務部・佐藤まで
-                        </p>
-                    </div>
-
-                    <!-- 装飾バーコード風グラフィック -->
-                    <div class="pt-1 text-center space-y-1">
-                        <div class="ticket-barcode w-4/5 mx-auto opacity-85"></div>
-                        <p class="text-[10px] font-mono text-slate-400 tracking-widest">HIME-TICKET INTERNAL VOUCHER</p>
-                    </div>
-
-                    <!-- 閉じるボタン -->
-                    <div class="pt-1">
-                        <button onclick="closeModal('voucher-modal')" class="w-full py-3 rounded-xl text-xs sm:text-sm font-black bg-hime-blue hover:bg-hime-dark text-white shadow-sm transition-colors">
-                            閉じる（右上の「マイチケット」からいつでも再表示できます）
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ====================================================================== -->
-    <!-- モーダル3: マイチケット（過去の申し込み控え一覧モーダル）             -->
-    <!-- ====================================================================== -->
-    <div id="receipts-list-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs" onclick="closeModal('receipts-list-modal')"></div>
-        <div class="flex min-h-full items-center justify-center p-4">
-            <div class="relative w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-                <div class="bg-hime-blue text-white px-5 py-3.5 flex items-center justify-between">
-                    <h3 class="font-black text-base flex items-center gap-2">
-                        <i class="ph-fill ph-ticket text-hime-yellow text-lg"></i>
-                        マイチケット（この端末の発券控え）
-                    </h3>
-                    <button onclick="closeModal('receipts-list-modal')" class="text-blue-100 hover:text-white p-1 rounded-lg">
-                        <i class="ph-bold ph-x text-lg"></i>
-                    </button>
-                </div>
-                <div class="p-5 space-y-3 max-h-[65vh] overflow-y-auto" id="my-receipts-container">
-                    <!-- JSで動的に描画 -->
-                </div>
-                <div class="bg-slate-50 px-5 py-3 border-t border-slate-200 text-right">
-                    <button onclick="closeModal('receipts-list-modal')" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 hover:bg-slate-300 text-slate-700">
-                        閉じる
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ====================================================================== -->
-    <!-- モーダル4: 管理者パスコード認証モーダル                                  -->
-    <!-- ====================================================================== -->
-    <div id="admin-auth-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs" onclick="closeModal('admin-auth-modal')"></div>
-        <div class="flex min-h-full items-center justify-center p-4">
-            <div class="relative w-full max-w-xs bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-                <div class="bg-hime-blue text-white py-3 px-4 text-center font-black text-sm">
-                    ヒメチケ 管理者認証
-                </div>
-                <div class="p-6 text-center space-y-4">
-                    <div class="w-12 h-12 rounded-2xl bg-hime-light text-hime-blue flex items-center justify-center mx-auto">
-                        <i class="ph-fill ph-lock-key text-2xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-black text-base text-slate-900">パスコードを入力</h3>
-                        <p class="text-xs text-slate-500 mt-1">チケットの出品・申込者管理を行うにはパスコードを入力してください。</p>
-                    </div>
-                    <form onsubmit="verifyAdminPasscode(event)" class="space-y-3">
-                        <input type="password" id="admin-passcode-input" inputmode="numeric" required placeholder="••••"
-                            class="w-full px-4 py-2.5 text-center text-lg tracking-widest font-black border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-hime-blue">
-                        <p class="text-[11px] text-slate-400">初期パスコード: <strong class="text-slate-600">1234</strong></p>
-                        <div class="flex gap-2 pt-1">
-                            <button type="button" onclick="closeModal('admin-auth-modal')" class="flex-1 py-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">
-                                キャンセル
-                            </button>
-                            <button type="submit" class="flex-1 py-2.5 rounded-xl text-xs font-black bg-hime-blue text-white hover:bg-hime-dark">
-                                認証する
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- カスタム確認ダイアログ（confirm()の代替） -->
-    <div id="confirm-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"></div>
-        <div class="flex min-h-full items-center justify-center p-4">
-            <div class="relative w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-200 p-6 space-y-4">
-                <div class="flex items-start gap-3">
-                    <div class="w-10 h-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
-                        <i class="ph-bold ph-warning text-xl"></i>
-                    </div>
-                    <div>
-                        <h4 id="confirm-title" class="font-black text-sm text-slate-900">確認</h4>
-                        <p id="confirm-message" class="text-xs text-slate-600 mt-1 leading-relaxed">この操作を実行しますか？</p>
-                    </div>
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button id="confirm-cancel-btn" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">
-                        キャンセル
-                    </button>
-                    <button id="confirm-ok-btn" class="px-4 py-2 rounded-xl text-xs font-black bg-rose-600 text-white hover:bg-rose-700">
-                        実行する
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- トースト通知 -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
-        <div class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2.5 text-xs sm:text-sm font-bold border border-slate-700">
-            <i id="toast-icon" class="ph-fill ph-check-circle text-emerald-400 text-xl"></i>
-            <span id="toast-message">完了しました</span>
-        </div>
-    </div>
-
-    <!-- ====================================================================== -->
-    <!-- Firebase SDK & アプリケーションロジック                                 -->
-    <!-- ====================================================================== -->
+<!-- ... existing code ... -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import {
             getFirestore, collection, doc, addDoc, updateDoc, deleteDoc,
-            onSnapshot, runTransaction, getDocs
+            onSnapshot, runTransaction, getDocs, setDoc
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ------------------------------------------------------------------
-        // 1. Firebase 初期化 & 認証セットアップ（リアルタイム同期・排他制御維持）
+        // 1. Firebase 初期化 & Firestore 接続設定（himeticket-523fa）
         // ------------------------------------------------------------------
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'hime-ticket-portal';
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1je3R9cnh-xSFtEn02xekA-Ffx48i-i8",
+            authDomain: "himeticket-523fa.firebaseapp.com",
+            projectId: "himeticket-523fa",
+            storageBucket: "himeticket-523fa.firebasestorage.app",
+            messagingSenderId: "1012596366736",
+            appId: "1:1012596366736:web:e0b91984d9e261e57c2715"
+        };
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'himeticket-523fa';
+        let app = null;
         let db = null;
-        let auth = null;
-        let currentUser = null;
-        let isDemoFallback = false;
+        let isFirestoreReady = false;
+        let isSeedRunning = false;
 
         // アプリ内状態
         let ticketsList = [];
@@ -697,6 +65,7 @@
         const ADMIN_PASSCODE = '1234';
         const LOCAL_RECEIPTS_KEY = `himeticket_receipts_${appId}`;
         const LOCAL_FAVORITES_KEY = `himeticket_favorites_${appId}`;
+        const LOCAL_PROFILE_KEY = `himeticket_user_profile_${appId}`;
         let favoriteTicketIds = new Set(JSON.parse(localStorage.getItem(LOCAL_FAVORITES_KEY) || '[]'));
 
         // 自動生成ポスターバナー用カラーテーマ定義
@@ -739,31 +108,119 @@
             }
         };
 
-        // Firestore コレクション参照ヘルパー（RULE 1 厳守）
+        // Firestore コレクション参照ヘルパー
         const getTicketsCol = () => collection(db, 'artifacts', appId, 'public', 'data', 'tickets');
         const getTicketDoc = (id) => doc(db, 'artifacts', appId, 'public', 'data', 'tickets', id);
         const getApplicationsCol = () => collection(db, 'artifacts', appId, 'public', 'data', 'applications');
         const getApplicationDoc = (id) => doc(db, 'artifacts', appId, 'public', 'data', 'applications', id);
+        const getMetaDoc = () => doc(db, 'artifacts', appId, 'public', 'data', 'meta', 'seed_status');
+
+        function showFirestoreNotice(title, detail) {
+            const banner = document.getElementById('firestore-notice-banner');
+            document.getElementById('firestore-notice-title').textContent = title;
+            document.getElementById('firestore-notice-detail').textContent = detail;
+            banner.classList.remove('hidden');
+        }
+
+        function hideFirestoreNotice() {
+            document.getElementById('firestore-notice-banner').classList.add('hidden');
+        }
 
         async function initApp() {
-            try {
-                if (typeof __firebase_config === 'undefined') {
-                    throw new Error('Firebase config not found');
-                }
-                const firebaseConfig = JSON.parse(__firebase_config);
-                const app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
+            updateReceiptBadge();
+            selectBannerTheme('royal');
 
-                // RULE 3: 必ず認証を完了させてからFirestore操作を行う
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-        // 初回データが空の場合にプレイガイド風サンプルチケット4件を自動登録
-        async function ensureInitialSampleTickets() {
-            if (!currentUser || !db) return;
             try {
-                const snap = await getDocs(getTicketsCol());
-                if (snap.empty) {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                subscribeToRealtimeData();
+            } catch (err) {
+                console.error('Firebase 初期化エラー:', err);
+                document.getElementById('user-loading').classList.add('hidden');
+                showFirestoreNotice(
+                    'Firebase の初期化に失敗しました',
+                    'ネットワーク接続やブラウザのブロック設定を確認してください。'
+                );
+                renderUserTickets();
+            }
+        }
+
+        // Firestore リアルタイムリスナー設定（onSnapshot）
+        function subscribeToRealtimeData() {
+            let receivedInitialTickets = false;
+
+            // ローディングが長時間残らないための安全タイマー
+            const loadingFallbackTimer = setTimeout(() => {
+                if (!receivedInitialTickets) {
+                    document.getElementById('user-loading').classList.add('hidden');
+                    renderUserTickets();
+                }
+            }, 4500);
+
+            onSnapshot(getTicketsCol(), async (snapshot) => {
+                clearTimeout(loadingFallbackTimer);
+                receivedInitialTickets = true;
+                isFirestoreReady = true;
+                hideFirestoreNotice();
+
+                ticketsList = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                ticketsList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+                // 初回起動時のみサンプルチケットを1度だけ自動投入（削除後も再生成しないフラグ管理）
+                if (ticketsList.length === 0 && !isSeedRunning) {
+                    await seedInitialTicketsIfNeverSeeded();
+                }
+
+                document.getElementById('user-loading').classList.add('hidden');
+                renderUserTickets();
+                if (isAdminAuthenticated) renderAdminDashboard();
+            }, (error) => {
+                clearTimeout(loadingFallbackTimer);
+                receivedInitialTickets = true;
+                isFirestoreReady = false;
+                document.getElementById('user-loading').classList.add('hidden');
+                console.error('Firestore チケット購読エラー:', error);
+
+                if (error.code === 'permission-denied') {
+                    showFirestoreNotice(
+                        'Firestore のアクセス権限がありません（セキュリティルールをご確認ください）',
+                        'Firebaseコンソールの Firestore Database →「ルール」タブで読み書きが許可されているか確認してください（テストモードまたは allow read, write: if true;）。'
+                    );
+                } else if (error.code === 'failed-precondition' || String(error.message || '').includes('database')) {
+                    showFirestoreNotice(
+                        'Firestore Database がまだ作成されていません',
+                        'Firebaseコンソール（himeticket-523fa）の左メニュー「Firestore Database」から「データベースの作成」を実行してください。'
+                    );
+                } else {
+                    showFirestoreNotice(
+                        'Firestore との同期に問題が発生しました',
+                        `詳細: ${error.message || error.code || '通信エラー'}`
+                    );
+                }
+                renderUserTickets();
+            });
+
+            onSnapshot(getApplicationsCol(), (snapshot) => {
+                applicationsList = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                applicationsList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                if (isAdminAuthenticated) renderAdminDashboard();
+            }, (error) => {
+                console.error('Firestore 申し込み購読エラー:', error);
+            });
+        }
+
+        // 初回セットアップ時のみサンプルチケットを登録（管理者が全削除した後は再投入しない）
+        async function seedInitialTicketsIfNeverSeeded() {
+            if (!db || isSeedRunning) return;
+            isSeedRunning = true;
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const metaRef = getMetaDoc();
+                    const metaSnap = await transaction.get(metaRef);
+                    if (metaSnap.exists() && metaSnap.data().seeded) {
+                        return;
+                    }
+
                     const samples = [
                         {
                             title: 'プロ野球公式戦 内野指定席S（連番ペア可）',
@@ -818,100 +275,23 @@
                             createdAt: Date.now() - 3000
                         }
                     ];
-                    for (const item of samples) {
-                        await addDoc(getTicketsCol(), item);
-                    }
-                }
+
+                    samples.forEach((item, idx) => {
+                        const newTicketRef = doc(getTicketsCol());
+                        transaction.set(newTicketRef, {
+                            ...item,
+                            createdAt: Date.now() - idx * 1000
+                        });
+                    });
+
+                    transaction.set(metaRef, { seeded: true, seededAt: Date.now() }, { merge: true });
+                });
             } catch (e) {
-                console.error('サンプル登録エラー:', e);
+                // 読み取り専用ルール等の場合はエラーを出さず空状態を表示
+                console.warn('初期サンプル投入スキップ:', e.message || e);
+            } finally {
+                isSeedRunning = false;
             }
-        }
-
-        // Firestore リアルタイムリスナー設定（RULE 2: クエリはシンプルにしJS側でソート）
-        function subscribeToRealtimeData() {
-            if (!currentUser || !db) return;
-
-            onSnapshot(getTicketsCol(), (snapshot) => {
-                ticketsList = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                ticketsList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-                document.getElementById('user-loading').classList.add('hidden');
-                renderUserTickets();
-                if (isAdminAuthenticated) renderAdminDashboard();
-            }, (error) => {
-                console.error('チケット購読エラー:', error);
-                showToast('データの同期中にエラーが発生しました', 'error');
-            });
-
-            onSnapshot(getApplicationsCol(), (snapshot) => {
-                applicationsList = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                applicationsList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-                if (isAdminAuthenticated) renderAdminDashboard();
-            }, (error) => {
-                console.error('申し込み購読エラー:', error);
-            });
-        }
-
-        function initLocalFallbackData() {
-            document.getElementById('user-loading').classList.add('hidden');
-            ticketsList = [
-                {
-                    id: 'sample-1',
-                    title: 'プロ野球公式戦 内野指定席S（連番ペア可）',
-                    datetime: '2026/12/12(土) 14:00 試合開始',
-                    venue: 'みずほPayPayドーム福岡',
-                    price: 2500,
-                    totalQuantity: 4,
-                    remainingQuantity: 2,
-                    imageUrl: '',
-                    bannerTheme: 'royal',
-                    memo: '本社3F 総務部・佐藤のデスクまで引換証スクショを持って取りに来てください。',
-                    isOpen: true,
-                    createdAt: Date.now()
-                },
-                {
-                    id: 'sample-2',
-                    title: 'SPECIAL LIVE TOUR 2026-2027 アリーナ指定席',
-                    datetime: '2026/12/20(日) 17:00 開演',
-                    venue: 'マリンメッセ福岡 A館',
-                    price: 4500,
-                    totalQuantity: 4,
-                    remainingQuantity: 4,
-                    imageUrl: '',
-                    bannerTheme: 'sunset',
-                    memo: '【福利厚生特別枠】本社4F 人事部・高橋まで引換証をご提示ください。',
-                    isOpen: true,
-                    createdAt: Date.now() - 1000
-                },
-                {
-                    id: 'sample-3',
-                    title: '特別展「近代日本画の巨匠たち」招待券',
-                    datetime: '2026/12/27(日) まで有効',
-                    venue: '福岡市立美術館',
-                    price: 0,
-                    totalQuantity: 6,
-                    remainingQuantity: 5,
-                    imageUrl: '',
-                    bannerTheme: 'emerald',
-                    memo: '【無料招待枠】2F 企画広報室・田中までお声がけください。',
-                    isOpen: true,
-                    createdAt: Date.now() - 2000
-                },
-                {
-                    id: 'sample-4',
-                    title: '博多座 十二月大歌舞伎 昼の部 A席チケット',
-                    datetime: '2026/12/19(土) 11:00 開演',
-                    venue: '博多座',
-                    price: 4000,
-                    totalQuantity: 2,
-                    remainingQuantity: 0,
-                    imageUrl: '',
-                    bannerTheme: 'purple',
-                    memo: '本社4F 秘書課・鈴木までお越しください。',
-                    isOpen: true,
-                    createdAt: Date.now() - 3000
-                }
-            ];
-            renderUserTickets();
         }
 
         // ------------------------------------------------------------------
@@ -945,12 +325,11 @@
             renderUserTickets();
         };
 
-        // ポスタービジュアルHTML生成（画像URLあり→画像＋エラー時フォールバック / なし→自動デザインポスター）
+        // ポスタービジュアルHTML生成
         function buildPosterVisualHTML(ticket) {
             const theme = BANNER_THEMES[ticket.bannerTheme] || BANNER_THEMES.royal;
             const autoPosterHTML = `
                 <div class="poster-media w-full h-full bg-gradient-to-br ${theme.bg} p-4 flex flex-col justify-between text-white relative overflow-hidden select-none">
-                    <!-- 背景装飾サークル＆ライン -->
                     <div class="w-32 h-32 rounded-full border border-white/15 absolute -top-8 -right-8 pointer-events-none"></div>
                     <div class="w-24 h-24 rounded-full bg-white/5 absolute -bottom-6 -left-6 pointer-events-none"></div>
                     
@@ -992,7 +371,7 @@
             const grid = document.getElementById('user-tickets-grid');
             const emptyState = document.getElementById('user-empty-state');
 
-            let openTickets = ticketsList.filter(t => t.isOpen !== false);
+            const openTickets = ticketsList.filter(t => t.isOpen !== false);
             const favCount = openTickets.filter(t => favoriteTicketIds.has(t.id)).length;
             const favBadge = document.getElementById('fav-filter-count');
             if (favBadge) {
@@ -1022,7 +401,6 @@
                 const isLowStock = !isSoldOut && (rem <= 2 || (rem / total) <= 0.4);
                 const isFav = favoriteTicketIds.has(ticket.id);
 
-                // 左上のステータスバッジ
                 let statusBadge = '';
                 if (isSoldOut) {
                     statusBadge = `<span class="px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-black bg-slate-800/85 text-white shadow-xs backdrop-blur-xs">予定枚数終了</span>`;
@@ -1034,30 +412,25 @@
                     statusBadge = `<span class="px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-black bg-hime-orange text-white shadow-xs">受付中</span>`;
                 }
 
-                // 価格表示（1枚 ◯円 / 無料）
                 const priceText = ticket.price === 0
                     ? `<span class="text-emerald-600 font-black text-sm">無料</span>`
                     : `<span class="text-slate-900 font-black text-sm">1枚 ¥${Number(ticket.price).toLocaleString()}</span>`;
 
-                // 残り枚数バッジ
                 const remBadge = isSoldOut
                     ? `<span class="text-[10px] font-bold bg-slate-100 text-slate-400 px-2 py-0.5 rounded">残り 0枚</span>`
                     : `<span class="text-[10px] font-black ${isLowStock ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-hime-light text-hime-blue'} px-2 py-0.5 rounded">残り ${rem}枚</span>`;
 
                 return `
                 <article onclick="openApplyModal('${ticket.id}')" class="poster-card group cursor-pointer flex flex-col">
-                    <!-- 上部：縦長4:5 ポスター・キービジュアルフレーム -->
                     <div class="relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 shadow-xs group-hover:shadow-md group-hover:border-hime-blue/50 transition-all">
                         <div class="w-full h-full ${isSoldOut ? 'grayscale-[45%] opacity-80' : ''}">
                             ${buildPosterVisualHTML(ticket)}
                         </div>
 
-                        <!-- 左上：ステータスバッジ -->
                         <div class="absolute top-2.5 left-2.5 z-20">
                             ${statusBadge}
                         </div>
 
-                        <!-- 右下：チケットぴあ風 丸い白背景ハート（お気に入り）ボタン -->
                         <button type="button"
                                 onclick="toggleFavorite(event, '${ticket.id}')"
                                 aria-label="お気に入りに登録"
@@ -1066,14 +439,11 @@
                         </button>
                     </div>
 
-                    <!-- 下部：削ぎ落としたクリーンなテキスト情報 -->
                     <div class="pt-2.5 px-0.5 space-y-1 flex-1 flex flex-col justify-between">
                         <div class="space-y-1">
-                            <!-- 公演タイトル（太字・黒文字・最大2行） -->
                             <h3 class="font-bold text-xs sm:text-sm text-slate-900 group-hover:text-hime-blue transition-colors leading-snug line-clamp-2">
                                 ${escapeHTML(ticket.title)}
                             </h3>
-                            <!-- 日時・会場（グレーの小さめ文字） -->
                             <p class="text-[11px] text-slate-500 leading-tight truncate">
                                 ${escapeHTML(ticket.datetime)}
                             </p>
@@ -1082,7 +452,6 @@
                             </p>
                         </div>
 
-                        <!-- 価格 & 残り枚数バッジ -->
                         <div class="pt-1.5 flex items-center justify-between gap-1 flex-wrap">
                             ${priceText}
                             ${remBadge}
@@ -1113,11 +482,12 @@
                         <div class="text-slate-700 font-medium text-[11px] space-y-0.5">
                             <div><i class="ph-fill ph-calendar-blank text-hime-blue"></i> ${escapeHTML(ticket.datetime)}</div>
                             <div><i class="ph-fill ph-map-pin text-hime-orange"></i> ${escapeHTML(ticket.venue)}</div>
+                            <div class="font-bold text-slate-900"><i class="ph-fill ph-currency-jpy text-hime-blue"></i> ${ticket.price === 0 ? '無料招待' : '1枚 ¥' + Number(ticket.price).toLocaleString()}</div>
                         </div>
                     </div>
                 </div>
                 <div class="bg-white/90 border border-blue-200/80 rounded-lg p-2.5 text-[11px] text-slate-700">
-                    <span class="font-black text-hime-blue block mb-0.5"><i class="ph-fill ph-info text-hime-orange"></i> 受け渡し窓口・注意事項</span>
+                    <span class="font-black text-hime-blue block mb-0.5"><i class="ph-fill ph-info text-hime-orange"></i> 受け渡し窓口・持ち主メモ</span>
                     <span class="font-medium leading-relaxed">${escapeHTML(ticket.memo)}</span>
                 </div>
             `;
@@ -1144,8 +514,7 @@
                 qtySelect.appendChild(opt);
             }
 
-            // 前回入力した部署名・氏名を自動補完
-            const savedProfile = JSON.parse(localStorage.getItem('himeticket_user_profile') || '{}');
+            const savedProfile = JSON.parse(localStorage.getItem(LOCAL_PROFILE_KEY) || '{}');
             document.getElementById('apply-department').value = savedProfile.department || '';
             document.getElementById('apply-fullname').value = savedProfile.fullname || '';
             document.getElementById('apply-note').value = '';
@@ -1154,7 +523,6 @@
             openModal('apply-modal');
         };
 
-        // ＋/−ステッパーでの枚数変更
         window.stepApplyQuantity = function(delta) {
             const select = document.getElementById('apply-quantity');
             const nextIndex = select.selectedIndex + delta;
@@ -1164,7 +532,6 @@
             }
         };
 
-        // 合計金額リアルタイム更新
         window.updateApplyTotalPrice = function() {
             const ticketId = document.getElementById('apply-ticket-id').value;
             const ticket = ticketsList.find(t => t.id === ticketId);
@@ -1175,10 +542,15 @@
         };
 
         // ------------------------------------------------------------------
-        // 3. 申し込み確定処理（トランザクション在庫減算 & 引換証発券）
+        // 3. 申し込み確定処理（Firestore runTransaction で原子的に在庫減算）
         // ------------------------------------------------------------------
         window.handleApplySubmit = async function(event) {
             event.preventDefault();
+            if (!db) {
+                showToast('Firestore に接続できていません', 'error');
+                return;
+            }
+
             const submitBtn = document.getElementById('apply-submit-btn');
             submitBtn.disabled = true;
             submitBtn.innerHTML = `<span class="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span> 発券処理中...`;
@@ -1189,7 +561,7 @@
             const fullname = document.getElementById('apply-fullname').value.trim();
             const note = document.getElementById('apply-note').value.trim();
 
-            localStorage.setItem('himeticket_user_profile', JSON.stringify({ department, fullname }));
+            localStorage.setItem(LOCAL_PROFILE_KEY, JSON.stringify({ department, fullname }));
 
             const receiptNo = '#HT-' + Math.floor(1000 + Math.random() * 9000);
             const now = new Date();
@@ -1199,74 +571,47 @@
                 let confirmedTicketData = null;
                 let totalPrice = 0;
 
-                if (!isDemoFallback && db && currentUser) {
-                    // Firestore トランザクションによる排他制御（同時申し込みによるオーバーブッキング防止）
-                    await runTransaction(db, async (transaction) => {
-                        const tRef = getTicketDoc(ticketId);
-                        const tSnap = await transaction.get(tRef);
-                        if (!tSnap.exists()) {
-                            throw new Error('対象の公演チケットが見つかりませんでした。');
-                        }
-                        const tData = tSnap.data();
-                        if (tData.isOpen === false) {
-                            throw new Error('この公演は現在受付を停止しています。');
-                        }
-                        if ((tData.remainingQuantity || 0) < quantity) {
-                            throw new Error(`直前に他の方の申し込みがあり残席が不足しています（現在の残り枚数: ${tData.remainingQuantity || 0}枚）。`);
-                        }
+                await runTransaction(db, async (transaction) => {
+                    const tRef = getTicketDoc(ticketId);
+                    const tSnap = await transaction.get(tRef);
+                    if (!tSnap.exists()) {
+                        throw new Error('対象の公演チケットが見つかりませんでした。');
+                    }
+                    const tData = tSnap.data();
+                    if (tData.isOpen === false) {
+                        throw new Error('この公演は現在受付を停止しています。');
+                    }
+                    const currentRemaining = tData.remainingQuantity || 0;
+                    if (currentRemaining < quantity) {
+                        throw new Error(`直前に他の方の申し込みがあり残席が不足しています（現在の残り枚数: ${currentRemaining}枚）。`);
+                    }
 
-                        confirmedTicketData = { id: tSnap.id, ...tData };
-                        totalPrice = (tData.price || 0) * quantity;
+                    confirmedTicketData = { id: tSnap.id, ...tData };
+                    totalPrice = (tData.price || 0) * quantity;
 
-                        transaction.update(tRef, {
-                            remainingQuantity: tData.remainingQuantity - quantity
-                        });
-
-                        const newAppRef = doc(getApplicationsCol());
-                        transaction.set(newAppRef, {
-                            receiptNo,
-                            ticketId,
-                            ticketTitle: tData.title,
-                            ticketDatetime: tData.datetime,
-                            ticketVenue: tData.venue,
-                            ticketMemo: tData.memo,
-                            quantity,
-                            unitPrice: tData.price || 0,
-                            totalPrice,
-                            department,
-                            fullname,
-                            note,
-                            status: '未引換',
-                            createdAtStr: formattedNow,
-                            createdAt: Date.now()
-                        });
+                    transaction.update(tRef, {
+                        remainingQuantity: currentRemaining - quantity
                     });
-                } else {
-                    const t = ticketsList.find(item => item.id === ticketId);
-                    if (!t || t.remainingQuantity < quantity) throw new Error('残席が不足しています。');
-                    t.remainingQuantity -= quantity;
-                    confirmedTicketData = t;
-                    totalPrice = (t.price || 0) * quantity;
-                    applicationsList.unshift({
-                        id: 'app-' + Date.now(),
+
+                    const newAppRef = doc(getApplicationsCol());
+                    transaction.set(newAppRef, {
                         receiptNo,
                         ticketId,
-                        ticketTitle: t.title,
-                        ticketDatetime: t.datetime,
-                        ticketVenue: t.venue,
-                        ticketMemo: t.memo,
+                        ticketTitle: tData.title,
+                        ticketDatetime: tData.datetime,
+                        ticketVenue: tData.venue,
+                        ticketMemo: tData.memo,
                         quantity,
-                        unitPrice: t.price || 0,
+                        unitPrice: tData.price || 0,
                         totalPrice,
                         department,
                         fullname,
                         note,
-                        status: '未引換',
+                        status: '未渡し',
                         createdAtStr: formattedNow,
                         createdAt: Date.now()
                     });
-                    renderUserTickets();
-                }
+                });
 
                 const voucherData = {
                     receiptNo,
@@ -1310,7 +655,7 @@
         function saveReceiptToLocal(voucherData) {
             const list = JSON.parse(localStorage.getItem(LOCAL_RECEIPTS_KEY) || '[]');
             list.unshift(voucherData);
-            localStorage.setItem(LOCAL_RECEIPTS_KEY, JSON.stringify(list.slice(0, 20)));
+            localStorage.setItem(LOCAL_RECEIPTS_KEY, JSON.stringify(list.slice(0, 30)));
             updateReceiptBadge();
         }
 
@@ -1336,11 +681,19 @@
                         <p class="font-bold">この端末での発券履歴はまだありません。</p>
                     </div>`;
             } else {
-                container.innerHTML = list.map((item, index) => `
+                container.innerHTML = list.map((item, index) => {
+                    const matchedApp = applicationsList.find(a => a.receiptNo === item.receiptNo);
+                    const statusBadge = matchedApp
+                        ? (matchedApp.status === '受け渡し済' || matchedApp.status === '引換済'
+                            ? `<span class="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-100 text-emerald-700">受け渡し済</span>`
+                            : `<span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-800">未渡し</span>`)
+                        : '';
+                    return `
                     <div class="border border-slate-200 rounded-xl p-3.5 hover:border-hime-blue transition-colors bg-slate-50/70 flex items-center justify-between gap-3">
                         <div class="space-y-1 min-w-0">
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 flex-wrap">
                                 <span class="font-mono text-xs font-black text-white bg-hime-blue px-2 py-0.5 rounded">${escapeHTML(item.receiptNo)}</span>
+                                ${statusBadge}
                                 <span class="text-[11px] text-slate-500">${escapeHTML(item.createdAtStr)}</span>
                             </div>
                             <div class="font-black text-xs text-slate-900 truncate">${escapeHTML(item.ticketTitle)}</div>
@@ -1350,7 +703,7 @@
                             引換証表示
                         </button>
                     </div>
-                `).join('');
+                `}).join('');
             }
             openModal('receipts-list-modal');
         };
@@ -1359,7 +712,6 @@
             const list = JSON.parse(localStorage.getItem(LOCAL_RECEIPTS_KEY) || '[]');
             if (list[index]) {
                 const saved = list[index];
-                // Firestore上の最新申込データがあればそちらの記載を優先照合
                 const latestApp = applicationsList.find(a => a.receiptNo === saved.receiptNo);
                 const voucherData = latestApp ? {
                     receiptNo: latestApp.receiptNo,
@@ -1434,15 +786,17 @@
             } else {
                 tContainer.innerHTML = ticketsList.map(t => {
                     const isOpen = t.isOpen !== false;
+                    const rem = t.remainingQuantity ?? 0;
+                    const total = t.totalQuantity ?? rem;
                     return `
                     <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/80">
                         <div class="space-y-1 min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <span class="px-2 py-0.5 rounded text-[10px] font-black ${isOpen ? 'bg-hime-orange text-white' : 'bg-slate-400 text-white'}">
-                                    ${isOpen ? '先着受付中' : '受付停止中'}
+                                    ${isOpen ? '受付中' : '受付停止'}
                                 </span>
                                 <span class="text-xs font-black text-hime-blue">
-                                    残席 ${t.remainingQuantity} / ${t.totalQuantity}枚
+                                    残席 ${rem} / ${total}枚
                                 </span>
                                 <span class="text-xs text-slate-500 font-medium">
                                     (${t.price === 0 ? '無料' : '¥' + Number(t.price).toLocaleString()})
@@ -1452,11 +806,17 @@
                             <p class="text-[11px] text-slate-500">${escapeHTML(t.datetime)} @ ${escapeHTML(t.venue)}</p>
                         </div>
 
-                        <div class="flex items-center gap-2 shrink-0">
-                            <button onclick="toggleTicketOpen('${t.id}', ${!isOpen})" class="px-3 py-1.5 rounded-lg text-xs font-bold border ${isOpen ? 'border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100' : 'border-blue-300 bg-hime-light text-hime-blue hover:bg-blue-100'}">
+                        <div class="flex items-center gap-1.5 shrink-0 flex-wrap">
+                            <button type="button" onclick="adjustTicketStock('${t.id}', -1)" class="px-2.5 py-1.5 rounded-lg text-xs font-black bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200" title="残席を1枚減らす">
+                                −1枚
+                            </button>
+                            <button type="button" onclick="adjustTicketStock('${t.id}', 1)" class="px-2.5 py-1.5 rounded-lg text-xs font-black bg-hime-light hover:bg-blue-100 text-hime-blue border border-blue-200" title="残席を1枚増やす">
+                                ＋1枚
+                            </button>
+                            <button type="button" onclick="toggleTicketOpen('${t.id}', ${!isOpen})" class="px-3 py-1.5 rounded-lg text-xs font-bold border ${isOpen ? 'border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100' : 'border-blue-300 bg-hime-light text-hime-blue hover:bg-blue-100'}">
                                 ${isOpen ? '受付停止' : '受付再開'}
                             </button>
-                            <button onclick="deleteTicket('${t.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors" title="削除">
+                            <button type="button" onclick="deleteTicket('${t.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors" title="削除">
                                 <i class="ph-bold ph-trash text-base"></i>
                             </button>
                         </div>
@@ -1477,8 +837,9 @@
                     </tr>`;
             } else {
                 tbody.innerHTML = applicationsList.map(app => {
-                    const isHanded = app.status === '引換済' || app.status === '受け渡し済';
-                    const displayLabel = isHanded ? '引換済' : '未引換';
+                    const isHanded = app.status === '受け渡し済' || app.status === '引換済';
+                    const displayLabel = isHanded ? '受け渡し済' : '未渡し';
+                    const nextStatus = isHanded ? '未渡し' : '受け渡し済';
                     return `
                     <tr class="hover:bg-slate-50/80 transition-colors">
                         <td class="py-3 px-4 whitespace-nowrap">
@@ -1500,22 +861,60 @@
                             <div class="text-slate-600 truncate" title="${escapeHTML(app.note || '')}">${escapeHTML(app.note || '-')}</div>
                         </td>
                         <td class="py-3 px-4 whitespace-nowrap">
-                            <button onclick="toggleApplicationStatus('${app.id}', '${isHanded ? '未引換' : '引換済'}')"
-        window.selectBannerTheme = function(themeKey) {
-            document.getElementById('admin-t-theme').value = themeKey;
-            document.querySelectorAll('.theme-swatch').forEach(btn => {
-                if (btn.dataset.theme === themeKey) {
-                    btn.classList.add('ring-2', 'ring-offset-2', 'ring-hime-blue', 'opacity-100');
-                    btn.classList.remove('opacity-75');
-                } else {
-                    btn.classList.remove('ring-2', 'ring-offset-2', 'ring-hime-blue', 'opacity-100');
-                    btn.classList.add('opacity-75');
-                }
-            });
+                            <button type="button" onclick="toggleApplicationStatus('${app.id}', '${nextStatus}')"
+                                class="px-3 py-1 rounded-full text-[11px] font-black transition-all cursor-pointer ${
+                                    isHanded
+                                        ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border border-emerald-300'
+                                        : 'bg-amber-100 text-amber-900 hover:bg-amber-200 border border-amber-300'
+                                }">
+                                ${isHanded ? '✓ 受け渡し済' : '● 未渡し'}
+                            </button>
+                        </td>
+                        <td class="py-3 px-4 whitespace-nowrap text-right">
+                            <button type="button" onclick="cancelApplicationAndRestoreStock('${app.id}')"
+                                class="px-2.5 py-1 rounded-lg text-[11px] font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors">
+                                取消・残席戻す
+                            </button>
+                        </td>
+                    </tr>
+                    `;
+                }).join('');
+            }
         };
 
+        // 管理者：残席数の増減調整（＋1枚 / −1枚）
+        window.adjustTicketStock = async function(ticketId, delta) {
+            if (!db) return;
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const tRef = getTicketDoc(ticketId);
+                    const tSnap = await transaction.get(tRef);
+                    if (!tSnap.exists()) return;
+                    const data = tSnap.data();
+                    const curRem = data.remainingQuantity ?? 0;
+                    const curTotal = data.totalQuantity ?? curRem;
+                    const nextRem = Math.max(0, curRem + delta);
+                    const nextTotal = delta > 0 ? Math.max(curTotal, nextRem) : curTotal;
+                    transaction.update(tRef, {
+                        remainingQuantity: nextRem,
+                        totalQuantity: nextTotal
+                    });
+                });
+                showToast(delta > 0 ? '残席を1枚増やしました' : '残席を1枚減らしました');
+            } catch (err) {
+                console.error(err);
+                showToast('残席の調整に失敗しました', 'error');
+            }
+        };
+
+        window.selectBannerTheme = function(themeKey) {
+<!-- ... existing code ... -->
         window.handleCreateTicket = async function(event) {
             event.preventDefault();
+            if (!db) {
+                showToast('Firestore に接続できていません', 'error');
+                return;
+            }
             const btn = document.getElementById('admin-create-btn');
             btn.disabled = true;
 
@@ -1543,12 +942,7 @@
             };
 
             try {
-                if (!isDemoFallback && db && currentUser) {
-                    await addDoc(getTicketsCol(), newTicket);
-                } else {
-                    ticketsList.unshift({ id: 'sample-' + Date.now(), ...newTicket });
-                    renderAdminDashboard();
-                }
+                await addDoc(getTicketsCol(), newTicket);
                 document.getElementById('admin-add-ticket-form').reset();
                 document.getElementById('admin-t-price').value = 0;
                 document.getElementById('admin-t-total').value = 2;
@@ -1556,21 +950,16 @@
                 showToast('新しい公演チケットを出品しました！');
             } catch (err) {
                 console.error(err);
-                showToast('チケットの登録に失敗しました', 'error');
+                showToast('チケットの登録に失敗しました。Firestoreのルールや作成状態をご確認ください。', 'error');
             } finally {
                 btn.disabled = false;
             }
         };
 
         window.toggleTicketOpen = async function(ticketId, nextState) {
+            if (!db) return;
             try {
-                if (!isDemoFallback && db && currentUser) {
-                    await updateDoc(getTicketDoc(ticketId), { isOpen: nextState });
-                } else {
-                    const t = ticketsList.find(item => item.id === ticketId);
-                    if (t) t.isOpen = nextState;
-                    renderAdminDashboard();
-                }
+                await updateDoc(getTicketDoc(ticketId), { isOpen: nextState });
                 showToast(nextState ? '受付を再開しました' : '受付を一時停止しました');
             } catch (err) {
                 showToast('更新に失敗しました', 'error');
@@ -1579,13 +968,9 @@
 
         window.deleteTicket = function(ticketId) {
             showConfirmDialog('公演チケットの削除', 'このチケットを一覧から完全に削除しますか？（既存の申し込み履歴は残ります）', async () => {
+                if (!db) return;
                 try {
-                    if (!isDemoFallback && db && currentUser) {
-                        await deleteDoc(getTicketDoc(ticketId));
-                    } else {
-                        ticketsList = ticketsList.filter(t => t.id !== ticketId);
-                        renderAdminDashboard();
-                    }
+                    await deleteDoc(getTicketDoc(ticketId));
                     showToast('チケットを削除しました');
                 } catch (err) {
                     showToast('削除に失敗しました', 'error');
@@ -1594,15 +979,10 @@
         };
 
         window.toggleApplicationStatus = async function(appId, nextStatus) {
+            if (!db) return;
             try {
-                if (!isDemoFallback && db && currentUser) {
-                    await updateDoc(getApplicationDoc(appId), { status: nextStatus });
-                } else {
-                    const a = applicationsList.find(item => item.id === appId);
-                    if (a) a.status = nextStatus;
-                    renderAdminDashboard();
-                }
-                showToast(`引換ステータスを「${nextStatus}」に更新しました`);
+                await updateDoc(getApplicationDoc(appId), { status: nextStatus });
+                showToast(`ステータスを「${nextStatus}」に更新しました`);
             } catch (err) {
                 showToast('ステータス更新に失敗しました', 'error');
             }
@@ -1610,33 +990,26 @@
 
         window.cancelApplicationAndRestoreStock = function(appId) {
             const app = applicationsList.find(a => a.id === appId);
-            if (!app) return;
+            if (!app || !db) return;
 
             showConfirmDialog(
                 '申し込みの取り消し（残席復元）',
                 `引換番号 ${app.receiptNo}（${app.department} ${app.fullname} 様 / ${app.quantity}枚）を取り消し、チケットの残席数を元に戻しますか？`,
                 async () => {
                     try {
-                        if (!isDemoFallback && db && currentUser) {
-                            await runTransaction(db, async (transaction) => {
-                                const appRef = getApplicationDoc(appId);
-                                const tRef = getTicketDoc(app.ticketId);
-                                const tSnap = await transaction.get(tRef);
+                        await runTransaction(db, async (transaction) => {
+                            const appRef = getApplicationDoc(appId);
+                            const tRef = getTicketDoc(app.ticketId);
+                            const tSnap = await transaction.get(tRef);
 
-                                if (tSnap.exists()) {
-                                    const currentRem = tSnap.data().remainingQuantity || 0;
-                                    transaction.update(tRef, {
-                                        remainingQuantity: currentRem + (app.quantity || 0)
-                                    });
-                                }
-                                transaction.delete(appRef);
-                            });
-                        } else {
-                            const t = ticketsList.find(item => item.id === app.ticketId);
-                            if (t) t.remainingQuantity += (app.quantity || 0);
-                            applicationsList = applicationsList.filter(item => item.id !== appId);
-                            renderAdminDashboard();
-                        }
+                            if (tSnap.exists()) {
+                                const currentRem = tSnap.data().remainingQuantity || 0;
+                                transaction.update(tRef, {
+                                    remainingQuantity: currentRem + (app.quantity || 0)
+                                });
+                            }
+                            transaction.delete(appRef);
+                        });
                         showToast('申し込みを取り消し、残席を元に戻しました');
                     } catch (err) {
                         console.error(err);
@@ -1647,102 +1020,4 @@
         };
 
         window.exportApplicationsCSV = function() {
-            if (applicationsList.length === 0) {
-                showToast('出力する申し込みデータがありません', 'error');
-                return;
-            }
-            const headers = ['引換番号', '申込日時', '部署名', '氏名', '公演・チケット名', '枚数', '単価', '合計金額', '連絡先・備考', '窓口引換状態'];
-            const rows = applicationsList.map(a => [
-                a.receiptNo,
-                a.createdAtStr,
-                a.department,
-                a.fullname,
-                a.ticketTitle,
-                a.quantity,
-                a.unitPrice,
-                a.totalPrice,
-                a.note || '',
-                a.status
-            ]);
-
-            const csvContent = [headers, ...rows]
-                .map(row => row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))
-                .join('\r\n');
-
-            const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-            const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-            a.href = url;
-            a.download = `ヒメチケ申込者一覧_${dateStr}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast('CSVファイルをダウンロードしました');
-        };
-
-        // ------------------------------------------------------------------
-        // 6. 汎用UIヘルパー
-        // ------------------------------------------------------------------
-        window.openModal = function(id) {
-            document.getElementById(id).classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        };
-
-        window.closeModal = function(id) {
-            document.getElementById(id).classList.add('hidden');
-            document.body.style.overflow = '';
-        };
-
-        function showConfirmDialog(title, message, onConfirm) {
-            document.getElementById('confirm-title').textContent = title;
-            document.getElementById('confirm-message').textContent = message;
-            const modal = document.getElementById('confirm-modal');
-            const okBtn = document.getElementById('confirm-ok-btn');
-            const cancelBtn = document.getElementById('confirm-cancel-btn');
-
-            const cleanup = () => {
-                modal.classList.add('hidden');
-                okBtn.onclick = null;
-                cancelBtn.onclick = null;
-            };
-
-            okBtn.onclick = () => {
-                cleanup();
-                onConfirm();
-            };
-            cancelBtn.onclick = cleanup;
-            modal.classList.remove('hidden');
-        }
-
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const icon = document.getElementById('toast-icon');
-            document.getElementById('toast-message').textContent = message;
-
-            icon.className = type === 'error'
-                ? 'ph-fill ph-warning-circle text-rose-400 text-xl'
-                : 'ph-fill ph-check-circle text-emerald-400 text-xl';
-
-            toast.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-24', 'opacity-0');
-            }, 3200);
-        }
-
-        function escapeHTML(str) {
-            if (str === null || str === undefined) return '';
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
-
-        initApp();
-    </script>
-</body>
-</html>
+<!-- ... existing code ... -->
