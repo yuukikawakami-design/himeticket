@@ -1,11 +1,12 @@
 // Firebase の接続設定（ヒメチケ：himeticket-523fa）
 export const firebaseConfig = {
-  apiKey: "AIzaSyC1je3R9cnh-xSFtEn02xekA-Ffx48i-i8",
+  apiKey: "AIzaSyC1je3R9cnh-…",
   authDomain: "himeticket-523fa.firebaseapp.com",
   projectId: "himeticket-523fa",
   storageBucket: "himeticket-523fa.firebasestorage.app",
   messagingSenderId: "1012596366736",
   appId: "1:1012596366736:web:e0b91984d9e261e57c2715"
+};
     
 // カテゴリ（公開ページ・出品者ページ共通）
 export const CATEGORIES = [
