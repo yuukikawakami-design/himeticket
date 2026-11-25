@@ -1,860 +1,376 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ヒメチケ | 社内チケット譲渡ボード</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
-  <style>
-    body {
-      font-family: 'Noto Sans JP', sans-serif;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ヒメチケ｜職場内チケット譲渡ボード</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bar:#1E2240; --ink:#1E2240; --ink-2:#5A5F7A;
+  --accent:#C8254E; --accent-soft:#FBE8ED;
+  --paper:#F3F4F8; --surface:#FFFFFF; --line:#E1E4EC;
+  --gold:#9A6512; --gold-soft:#FDF1D6; --ok:#1F7A5A; --ok-soft:#E3F4EC; --mute:#8D91A6;
+  --display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
+  --body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bar:#0F1124; --ink:#ECEDF5; --ink-2:#A7ABC2; --accent:#F0577D; --accent-soft:#40202C;
+  --paper:#14162A; --surface:#1E2140; --line:#30345A;
+  --gold:#F2C264; --gold-soft:#3C3220; --ok:#62D3A6; --ok-soft:#1D3A30; --mute:#7C809A;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button{font:inherit;color:inherit}
+
+/* ヘッダー */
+.bar{background:var(--bar);color:#fff;position:sticky;top:0;z-index:20}
+.bar-in{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:18px}
+.logo{color:#fff;text-decoration:none;display:flex;flex-direction:column;line-height:1.1;white-space:nowrap}
+.logo b{font-family:var(--display);font-weight:400;font-size:26px}
+.logo span{font-size:11px;opacity:.7;margin-top:3px}
+.search{flex:1;display:flex;background:#fff;border-radius:6px;overflow:hidden;max-width:560px}
+.search input{flex:1;min-width:0;border:0;padding:11px 14px;font:inherit;color:#1E2240;background:#fff}
+.search input:focus{outline:none}
+.search:focus-within{box-shadow:0 0 0 3px var(--accent)}
+.search button{border:0;background:var(--accent);color:#fff;padding:0 20px;font-weight:700;cursor:pointer}
+.post-link{margin-left:auto;color:#fff;text-decoration:none;font-weight:700;font-size:14px;border:1.5px solid rgba(255,255,255,.45);padding:8px 14px;border-radius:6px;white-space:nowrap}
+.post-link:hover{background:rgba(255,255,255,.1)}
+
+/* カテゴリタブ */
+.cats{background:var(--surface);border-bottom:1px solid var(--line)}
+.cats-in{max-width:1180px;margin:0 auto;padding:0 8px;display:flex;overflow-x:auto;scrollbar-width:none}
+.cats-in::-webkit-scrollbar{display:none}
+.cat-btn{border:0;background:none;font-weight:700;color:var(--ink-2);padding:14px 16px 11px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+.cat-btn:hover{color:var(--ink)}
+.cat-btn[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+
+main{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:18px}
+.count{font-weight:700;margin-right:auto}
+.count b{font-family:var(--display);font-weight:400;font-size:22px;color:var(--accent);margin-right:3px}
+.chip{border:1.5px solid var(--line);background:var(--surface);font-size:13px;font-weight:700;padding:6px 13px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.sort{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:13px;font-weight:700;padding:6px 10px;border-radius:6px}
+
+/* チケットカード */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px}
+.card{display:flex;flex-direction:column;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer;padding:0;position:relative}
+.card:hover{border-color:var(--ink-2)}
+.thumb{aspect-ratio:16/10;background:var(--c);position:relative;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .ph{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-family:var(--display);font-size:24px}
+.free{position:absolute;top:10px;left:10px;background:var(--gold-soft);color:var(--gold);font-size:12px;font-weight:700;padding:3px 9px;border-radius:4px}
+.stub{display:flex;flex:1;border-top:2px dashed var(--line);position:relative}
+.stub::before,.stub::after{content:"";position:absolute;top:-9px;width:16px;height:16px;border-radius:50%;background:var(--paper);border:1px solid var(--line)}
+.stub::before{left:-9px}.stub::after{right:-9px}
+.date{width:70px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 0;border-right:1px solid var(--line)}
+.date .m{font-size:12px;font-weight:700;color:var(--ink-2)}
+.date .d{font-family:var(--display);font-size:30px;line-height:1.1}
+.date .w{font-size:12px;color:var(--ink-2)}
+.date.sun .w,.date.sun .d{color:var(--accent)}
+.date.sat .w,.date.sat .d{color:#2F6FD0}
+.date .tbd{font-size:12px;font-weight:700;color:var(--ink-2);text-align:center;padding:0 6px}
+.info{flex:1;min-width:0;padding:12px 14px;display:flex;flex-direction:column;gap:3px}
+.cat-tag{font-size:12px;font-weight:700;color:var(--c)}
+@media (prefers-color-scheme:dark){.cat-tag{color:var(--ink-2)}}
+.info h3{margin:0;font-size:16px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.venue{margin:0;font-size:13px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row{margin-top:auto;padding-top:8px;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.price{font-weight:700;font-size:18px}
+.price small{font-size:12px;font-weight:500;color:var(--ink-2);margin-left:2px}
+.status{font-size:12px;font-weight:700;padding:3px 8px;border-radius:4px;white-space:nowrap}
+.st-ok{background:var(--ok-soft);color:var(--ok)}
+.st-few{background:var(--accent-soft);color:var(--accent)}
+.st-end{background:var(--line);color:var(--ink-2)}
+.card.sold .thumb{filter:grayscale(1);opacity:.55}
+.card.sold .price{color:var(--mute)}
+
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:48px 20px;text-align:center;color:var(--ink-2)}
+.empty a{color:var(--accent);font-weight:700}
+
+/* 詳細ダイアログ */
+dialog{border:0;padding:0;border-radius:12px;width:min(560px,calc(100% - 24px));max-height:calc(100% - 24px);background:var(--surface);color:var(--ink)}
+dialog::backdrop{background:rgba(15,17,36,.6)}
+.dl-img{aspect-ratio:16/10;background:var(--c);position:relative}
+.dl-img img{width:100%;height:100%;object-fit:cover;display:block}
+.dl-img .ph{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-family:var(--display);font-size:30px}
+.close{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(15,17,36,.65);color:#fff;font-size:20px;cursor:pointer;line-height:1}
+.dl-body{padding:20px 22px 24px}
+.dl-body h2{margin:4px 0 14px;font-size:21px;line-height:1.4}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:0 0 18px;font-size:14px}
+.facts dt{color:var(--ink-2);font-weight:700}
+.facts dd{margin:0;white-space:pre-wrap;word-break:break-word}
+.buybox{background:var(--paper);border-radius:10px;padding:16px}
+.buybox .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.buybox .big{font-family:var(--display);font-size:26px}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.field label{font-size:13px;font-weight:700}
+.field input,.field select,.field textarea{font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:6px;padding:9px 11px}
+.field textarea{min-height:64px;resize:vertical}
+.req{color:var(--accent);font-size:11px;margin-left:4px}
+.primary{width:100%;border:0;background:var(--accent);color:#fff;font-weight:700;font-size:16px;padding:13px;border-radius:8px;cursor:pointer}
+.primary:disabled{background:var(--mute);cursor:not-allowed}
+.hint{font-size:12px;color:var(--ink-2);margin:8px 0 0}
+.msg-err{color:var(--accent);font-size:13px;font-weight:700;margin:6px 0 0}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:12px 18px;border-radius:8px;font-weight:700;font-size:14px;z-index:50;max-width:calc(100% - 32px)}
+footer{text-align:center;font-size:12px;color:var(--ink-2);padding:0 20px 32px}
+footer a{color:inherit}
+
+@media (max-width:640px){
+  .bar-in{flex-wrap:wrap;gap:10px;padding:10px 14px}
+  .search{order:3;flex-basis:100%;max-width:none}
+  main{padding:16px 14px 48px}
+  .grid{grid-template-columns:1fr 1fr;gap:12px}
+  .date{width:54px}.date .d{font-size:24px}
+  .info{padding:10px}
+  .info h3{font-size:14px}
+  .price{font-size:15px}
+}
+@media (max-width:380px){.grid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
 </head>
-<body class="bg-slate-100/80 text-slate-800 min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
-  <!-- ヘッダー -->
-  <header class="bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 text-white shadow-lg sticky top-0 z-30 border-b border-white/10">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3.5">
-        <div class="w-11 h-11 rounded-2xl bg-white/15 ring-1 ring-white/25 backdrop-blur-md flex items-center justify-center text-2xl shadow-inner">
-          🎫
-        </div>
-        <div>
-          <div class="flex items-center gap-2.5">
-            <h1 class="text-xl sm:text-2xl font-black tracking-tight">ヒメチケ</h1>
-            <span class="text-[10px] font-extrabold uppercase tracking-widest bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full shadow-xs">
-              HIME-TICKET
-            </span>
-          </div>
-          <p class="text-xs text-blue-100/90 mt-0.5">職場内チケット譲渡・お譲り先マッチングボード</p>
-        </div>
-      </div>
+<body>
 
-      <div class="flex items-center gap-2 sm:gap-3">
-        <button
-          id="open-post-modal-btn"
-          type="button"
-          class="bg-amber-400 hover:bg-amber-300 active:scale-[0.99] text-slate-950 font-extrabold text-sm px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg transition flex items-center gap-1.5 cursor-pointer"
-        >
-          <span class="text-base leading-none">＋</span>
-          <span>チケットを出品する</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- ステータス＆検索・フィルタエリア -->
-  <section class="max-w-6xl w-full mx-auto px-4 sm:px-6 pt-6 space-y-4">
-    <div id="status-banner" class="rounded-2xl border border-slate-200/90 bg-white/95 shadow-xs px-4 py-3 text-sm text-slate-700 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-2.5 min-w-0">
-        <span id="status-dot" class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
-        <span id="status-text" class="truncate text-xs sm:text-sm font-medium">最新の残席情報を取得しています…</span>
-      </div>
-      <span id="ticket-count" class="text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200 px-3 py-1 rounded-full shrink-0">
-        0件
-      </span>
-    </div>
-
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-      <div class="relative flex-1">
-        <input
-          id="search-input"
-          type="text"
-          placeholder="イベント名・会場・出品者・備考で検索"
-          class="w-full rounded-xl border border-slate-200 bg-slate-50/80 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 px-4 py-2.5 text-sm outline-none transition"
-        />
-      </div>
-      <div class="flex items-center gap-2 flex-wrap">
-        <button
-          type="button"
-          data-filter="all"
-          class="filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-xs transition cursor-pointer"
-        >
-          すべて
-        </button>
-        <button
-          type="button"
-          data-filter="available"
-          class="filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer"
-        >
-          譲渡可能のみ
-        </button>
-        <button
-          type="button"
-          data-filter="free"
-          class="filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer"
-        >
-          無料（0円）
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- チケット一覧 -->
-  <main class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 flex-1">
-    <div id="ticket-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- カードがJavaScriptで描画されます -->
-    </div>
-
-    <div id="empty-state" class="hidden text-center py-16 px-4 bg-white rounded-3xl border border-dashed border-slate-300 shadow-2xs">
-      <p class="text-4xl mb-3">🎟️</p>
-      <p class="font-bold text-slate-800">条件に合うチケットが見つかりませんでした</p>
-      <p class="text-sm text-slate-500 mt-1">検索条件を変えるか、新しいチケットを出品してみてください。</p>
-    </div>
-  </main>
-
-  <!-- フッター -->
-  <footer class="border-t border-slate-200/80 bg-white py-5 text-center text-xs text-slate-500">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2">
-      <span class="font-medium text-slate-600">ヒメチケ（HIME-TICKET）— 職場内チケット譲渡ボード</span>
-      <span>受け渡し方法・金額の詳細は社内ルールに沿ってご確認ください</span>
-    </div>
-  </footer>
-
-  <!-- 出品モーダル -->
-  <div id="post-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden my-auto">
-      <div class="px-6 py-4 bg-gradient-to-r from-slate-900 to-blue-900 text-white flex items-center justify-between">
-        <h2 class="font-extrabold text-lg">チケットを出品する</h2>
-        <button id="close-post-modal-btn" type="button" class="text-slate-300 hover:text-white text-2xl leading-none cursor-pointer">×</button>
-      </div>
-
-      <form id="post-ticket-form" class="p-6 space-y-4 max-h-[82vh] overflow-y-auto">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">イベント名・チケット名 *</label>
-          <input
-            name="title"
-            type="text"
-            required
-            placeholder="例：〇〇フェス 1日券 / 映画ペア鑑賞券"
-            class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none"
-          />
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">開催日・有効期限 *</label>
-            <input
-              name="eventDate"
-              type="text"
-              required
-              placeholder="例：2026年12月15日 / 2027年3月末まで"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none"
-            />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">会場・利用場所</label>
-            <input
-              name="venue"
-              type="text"
-              placeholder="例：グリーンランド / 全国対象劇場"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none"
-            />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">1枚あたり料金（税込円） *</label>
-            <input
-              name="price"
-              type="number"
-              min="0"
-              step="1"
-              required
-              value="0"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none"
-            />
-            <p class="text-[11px] text-slate-500 mt-1">※0円入力で「無料」表示</p>
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">譲渡可能枚数 *</label>
-            <input
-              name="quantity"
-              type="number"
-              min="1"
-              step="1"
-              required
-              value="2"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none"
-            />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">出品者名（部署・ニックネーム可） *</label>
-            <input
-              name="sellerName"
-              type="text"
-              required
-              placeholder="例：企画管理室 川上"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none"
-            />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">受け渡し方法</label>
-            <input
-              name="handover"
-              type="text"
-              placeholder="例：社内 / オフィス手渡し"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none"
-            />
-          </div>
-        </div>
-
-        <!-- チケット画像アップロード（自動縮小） -->
-        <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5">
-          <div class="flex items-center justify-between gap-2 mb-1.5">
-            <label for="ticket-image-input" class="text-xs font-bold text-slate-700">
-              チケット画像・フライヤー写真（任意）
-            </label>
-            <button
-              id="clear-image-btn"
-              type="button"
-              class="hidden text-[11px] font-bold text-rose-600 hover:underline cursor-pointer"
-            >
-              画像を削除
-            </button>
-          </div>
-          <input
-            id="ticket-image-input"
-            type="file"
-            accept="image/*"
-            class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
-          />
-          <p class="text-[11px] text-slate-500 mt-1.5">
-            ※選択した画像は自動で縮小・軽量化されて保存されます（個人情報の写り込みにご注意ください）。
-          </p>
-          <div id="image-preview-wrap" class="hidden mt-3">
-            <img
-              id="image-preview"
-              src=""
-              alt="選択されたチケット画像プレビュー"
-              class="w-full max-h-44 object-cover rounded-xl border border-slate-200 bg-white"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">備考・座席情報など</label>
-          <textarea
-            name="notes"
-            rows="2"
-            placeholder="例：大人・子供共通券 先着順"
-            class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none"
-          ></textarea>
-        </div>
-
-        <div class="pt-2 flex items-center justify-end gap-2">
-          <button
-            id="cancel-post-btn"
-            type="button"
-            class="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
-          >
-            キャンセル
-          </button>
-          <button
-            id="submit-post-btn"
-            type="submit"
-            class="px-5 py-2.5 rounded-xl text-sm font-extrabold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition cursor-pointer"
-          >
-            出品を登録する
-          </button>
-        </div>
-      </form>
-    </div>
+<header class="bar">
+  <div class="bar-in">
+    <a class="logo" href="./"><b>ヒメチケ</b><span>職場内チケット譲渡ボード</span></a>
+    <form class="search" id="searchForm" role="search">
+      <input id="q" type="search" placeholder="イベント名・会場・出品者で探す" aria-label="キーワード検索">
+      <button type="submit">検索</button>
+    </form>
+    <a class="post-link" href="admin.html">出品者ページ</a>
   </div>
+</header>
 
-  <!-- 譲り受け申込モーダル -->
-  <div id="claim-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
-      <div class="px-6 py-4 bg-gradient-to-r from-blue-700 to-indigo-700 text-white flex items-center justify-between">
-        <h2 class="font-extrabold text-lg">チケットを譲り受ける</h2>
-        <button id="close-claim-modal-btn" type="button" class="text-blue-100 hover:text-white text-2xl leading-none cursor-pointer">×</button>
-      </div>
+<nav class="cats" aria-label="カテゴリ">
+  <div class="cats-in" id="cats"></div>
+</nav>
 
-      <form id="claim-ticket-form" class="p-6 space-y-4">
-        <div id="claim-ticket-summary" class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5 text-sm">
-          <!-- 対象チケット情報 -->
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">希望枚数 *</label>
-          <input
-            id="claim-quantity-input"
-            name="claimQuantity"
-            type="number"
-            min="1"
-            step="1"
-            required
-            value="1"
-            class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none"
-          />
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">お名前（部署・ニックネーム可） *</label>
-          <input
-            name="requesterName"
-            type="text"
-            required
-            placeholder="例：企画部 佐藤"
-            class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none"
-          />
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">連絡メモ・受け渡し希望</label>
-          <input
-            name="requesterNote"
-            type="text"
-            placeholder="例：本日の15時以降にデスクへ伺えます"
-            class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none"
-          />
-        </div>
-
-        <div class="pt-2 flex items-center justify-end gap-2">
-          <button
-            id="cancel-claim-btn"
-            type="button"
-            class="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
-          >
-            キャンセル
-          </button>
-          <button
-            type="submit"
-            class="px-5 py-2.5 rounded-xl text-sm font-extrabold bg-amber-400 hover:bg-amber-300 text-slate-950 shadow-sm transition cursor-pointer"
-          >
-            譲り受けを確定する
-          </button>
-        </div>
-      </form>
-    </div>
+<main>
+  <div class="toolbar">
+    <p class="count" id="count" aria-live="polite">読み込み中…</p>
+    <button class="chip" id="fAvail" aria-pressed="true">受付中のみ</button>
+    <button class="chip" id="fFree" aria-pressed="false">無料</button>
+    <select class="sort" id="sort" aria-label="並び替え">
+      <option value="new">新着順</option>
+      <option value="date">開催日が近い順</option>
+      <option value="price">料金が安い順</option>
+    </select>
   </div>
+  <div class="grid" id="grid"></div>
+</main>
 
-  <!-- Firebase v10 (Modular ESM) -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      doc,
-      updateDoc,
-      deleteDoc,
-      onSnapshot,
-      query,
-      orderBy,
-      serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<footer>ヒメチケは職員同士のチケット譲渡用です。チケット画像や備考に予約番号・QRコードを載せないでください。</footer>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyA2u9hI8R0_yG7qK1vX5mN3pL8oW4eT6zY",
-      authDomain: "himeticket-523fa.firebaseapp.com",
-      projectId: "himeticket-523fa",
-      storageBucket: "himeticket-523fa.appspot.com",
-      messagingSenderId: "849201736512",
-      appId: "1:849201736512:web:9c8d7e6f5a4b3c2d1e0f9a"
-    };
+<dialog id="detail" aria-labelledby="dTitle"></dialog>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const ticketsCol = collection(db, "tickets");
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, query, orderBy, onSnapshot, doc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { firebaseConfig, CATEGORIES } from "./firebase-config.js";
 
-    const statusDot = document.getElementById("status-dot");
-    const statusText = document.getElementById("status-text");
-    const ticketCountEl = document.getElementById("ticket-count");
-    const ticketGrid = document.getElementById("ticket-grid");
-    const emptyState = document.getElementById("empty-state");
-    const searchInput = document.getElementById("search-input");
-    const filterButtons = document.querySelectorAll(".filter-btn");
+const db = getFirestore(initializeApp(firebaseConfig));
+const $ = (s) => document.querySelector(s);
+const WEEK = ["日","月","火","水","木","金","土"];
+const state = { tickets: [], cat: "all", q: "", avail: true, free: false, sort: "new" };
 
-    const postModal = document.getElementById("post-modal");
-    const postForm = document.getElementById("post-ticket-form");
-    const submitPostBtn = document.getElementById("submit-post-btn");
-    const imageInput = document.getElementById("ticket-image-input");
-    const clearImageBtn = document.getElementById("clear-image-btn");
-    const imagePreviewWrap = document.getElementById("image-preview-wrap");
-    const imagePreview = document.getElementById("image-preview");
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const catOf = (id) => CATEGORIES.find((c) => c.id === id) || CATEGORIES[CATEGORIES.length - 1];
+const yen = (n) => Number(n) === 0 ? "無料" : "¥" + Number(n || 0).toLocaleString("ja-JP");
 
-    const claimModal = document.getElementById("claim-modal");
-    const claimForm = document.getElementById("claim-ticket-form");
-    const claimSummary = document.getElementById("claim-ticket-summary");
-    const claimQtyInput = document.getElementById("claim-quantity-input");
+function parseDate(s) {
+  const m = String(s || "").match(/(\d{4})\s*[-\/年.]\s*(\d{1,2})\s*[-\/月.]\s*(\d{1,2})/);
+  if (!m) return null;
+  const d = new Date(+m[1], +m[2] - 1, +m[3]);
+  return isNaN(d) ? null : d;
+}
+function dateBlock(t) {
+  const d = parseDate(t.eventDate);
+  if (!d) return `<div class="date"><span class="tbd">${esc(t.eventDate || "日程未定")}</span></div>`;
+  const cls = d.getDay() === 0 ? "sun" : d.getDay() === 6 ? "sat" : "";
+  return `<div class="date ${cls}"><span class="m">${d.getMonth() + 1}月</span><span class="d">${d.getDate()}</span><span class="w">(${WEEK[d.getDay()]})</span></div>`;
+}
+function dateText(t) {
+  const d = parseDate(t.eventDate);
+  const base = d ? `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${WEEK[d.getDay()]}）` : (t.eventDate || "未定");
+  return t.eventTime ? `${base} ${t.eventTime}` : base;
+}
+function statusBadge(q) {
+  q = Number(q || 0);
+  if (q <= 0) return `<span class="status st-end">譲渡完了</span>`;
+  if (q <= 2) return `<span class="status st-few">残りわずか ${q}枚</span>`;
+  return `<span class="status st-ok">残り${q}枚</span>`;
+}
+function visual(t, cat, cls) {
+  return t.imageUrl
+    ? `<img src="${esc(t.imageUrl)}" alt="">`
+    : `<span class="ph" aria-hidden="true">${esc(cat.label)}</span>`;
+}
 
-    let allTickets = [];
-    let currentFilter = "all";
-    let searchQuery = "";
-    let selectedTicket = null;
-    let uploadedImageDataUrl = "";
-    let seededOnce = false;
+/* カテゴリタブ */
+const tabs = [{ id: "all", label: "すべて" }, ...CATEGORIES];
+$("#cats").innerHTML = tabs.map((c) => `<button class="cat-btn" data-cat="${c.id}" aria-pressed="${c.id === "all"}">${c.label}</button>`).join("");
+$("#cats").addEventListener("click", (e) => {
+  const b = e.target.closest(".cat-btn"); if (!b) return;
+  state.cat = b.dataset.cat;
+  document.querySelectorAll(".cat-btn").forEach((x) => x.setAttribute("aria-pressed", x === b));
+  render();
+});
 
-    const SAMPLE_TICKETS = [
-      {
-        title: "九州ウィンターイルミネーション 招待券",
-        eventDate: "2026年12月25日まで有効",
-        venue: "福岡市内特設会場",
-        price: 0,
-        quantity: 2,
-        sellerName: "総務部 田中",
-        handover: "社内チャット / 3F休憩室",
-        notes: "ご家族や同僚の方とぜひどうぞ。期限内にご利用ください。",
-        imageUrl: "",
-        claims: []
-      },
-      {
-        title: "年末スペシャルコンサート 指定席",
-        eventDate: "2026年12月20日 18:00開演",
-        venue: "福岡サンパレス",
-        price: 5500,
-        quantity: 2,
-        sellerName: "開発部 鈴木",
-        handover: "オフィス手渡し",
-        notes: "定価以下でお譲りします。1枚からでも相談可能です。",
-        imageUrl: "",
-        claims: []
-      }
-    ];
+/* 絞り込み・検索・並び替え */
+const toggle = (el, key) => el.addEventListener("click", () => { state[key] = !state[key]; el.setAttribute("aria-pressed", state[key]); render(); });
+toggle($("#fAvail"), "avail"); toggle($("#fFree"), "free");
+$("#sort").addEventListener("change", (e) => { state.sort = e.target.value; render(); });
+$("#searchForm").addEventListener("submit", (e) => { e.preventDefault(); state.q = $("#q").value.trim(); render(); });
+$("#q").addEventListener("input", (e) => { state.q = e.target.value.trim(); render(); });
 
-    function escapeHtml(str = "") {
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+function filtered() {
+  const q = state.q.toLowerCase();
+  let list = state.tickets.filter((t) => {
+    if (state.cat !== "all" && (t.category || "other") !== state.cat) return false;
+    if (state.avail && Number(t.quantity || 0) <= 0) return false;
+    if (state.free && Number(t.price) !== 0) return false;
+    if (q) {
+      const hay = [t.title, t.venue, t.sellerName, t.eventDate, t.notes, catOf(t.category).label].join(" ").toLowerCase();
+      if (!hay.includes(q)) return false;
     }
+    return true;
+  });
+  if (state.sort === "date") {
+    list = [...list].sort((a, b) => (parseDate(a.eventDate)?.getTime() ?? Infinity) - (parseDate(b.eventDate)?.getTime() ?? Infinity));
+  } else if (state.sort === "price") {
+    list = [...list].sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+  }
+  return list;
+}
 
-    function formatPrice(price) {
-      const num = Number(price) || 0;
-      return num === 0 ? "無料" : `¥${num.toLocaleString("ja-JP")}`;
-    }
+function render() {
+  const list = filtered();
+  $("#count").innerHTML = `<b>${list.length}</b>件のチケット`;
+  if (!state.tickets.length) {
+    $("#grid").innerHTML = `<div class="empty" style="grid-column:1/-1">まだ出品はありません。チケットを譲りたい方は<a href="admin.html">出品者ページ</a>から登録できます。</div>`;
+    return;
+  }
+  if (!list.length) {
+    $("#grid").innerHTML = `<div class="empty" style="grid-column:1/-1">条件に合うチケットはありません。カテゴリや絞り込みを変えてみてください。</div>`;
+    return;
+  }
+  $("#grid").innerHTML = list.map((t) => {
+    const cat = catOf(t.category);
+    const sold = Number(t.quantity || 0) <= 0;
+    return `<button class="card ${sold ? "sold" : ""}" data-id="${esc(t.id)}" style="--c:${cat.color}" aria-label="${esc(t.title)}の詳細を見る">
+      <div class="thumb">${visual(t, cat)}${Number(t.price) === 0 && !sold ? `<span class="free">無料</span>` : ""}</div>
+      <div class="stub">
+        ${dateBlock(t)}
+        <div class="info">
+          <span class="cat-tag">${esc(cat.label)}</span>
+          <h3>${esc(t.title)}</h3>
+          <p class="venue">${esc(t.venue || "会場未定")}</p>
+          <div class="row"><span class="price">${yen(t.price)}${Number(t.price) > 0 ? "<small>/枚</small>" : ""}</span>${statusBadge(t.quantity)}</div>
+        </div>
+      </div>
+    </button>`;
+  }).join("");
+}
 
-    function setBannerStatus(mode, message) {
-      statusText.textContent = message;
-      statusDot.classList.remove("bg-amber-400", "bg-emerald-500", "bg-rose-500", "animate-pulse");
-      if (mode === "ok") {
-        statusDot.classList.add("bg-emerald-500");
-      } else if (mode === "error") {
-        statusDot.classList.add("bg-rose-500");
-      } else {
-        statusDot.classList.add("bg-amber-400", "animate-pulse");
-      }
-    }
+$("#grid").addEventListener("click", (e) => {
+  const c = e.target.closest(".card"); if (c) openDetail(c.dataset.id);
+});
 
-    function compressImageFile(file, maxWidth = 800, quality = 0.72) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const img = new Image();
-          img.onload = () => {
-            let width = img.width;
-            let height = img.height;
+/* 詳細・譲り受け申込 */
+const dlg = $("#detail");
+function openDetail(id) {
+  const t = state.tickets.find((x) => x.id === id); if (!t) return;
+  const cat = catOf(t.category);
+  const q = Number(t.quantity || 0);
+  const claimsCount = Array.isArray(t.claims) ? t.claims.length : 0;
+  const opts = Array.from({ length: Math.min(q, 10) }, (_, i) => `<option value="${i + 1}">${i + 1}枚</option>`).join("");
+  dlg.style.setProperty("--c", cat.color);
+  dlg.innerHTML = `
+    <div class="dl-img">${visual(t, cat)}<button class="close" id="dClose" aria-label="閉じる">×</button></div>
+    <div class="dl-body">
+      <span class="cat-tag" style="--c:${cat.color}">${esc(cat.label)}</span>
+      <h2 id="dTitle">${esc(t.title)}</h2>
+      <dl class="facts">
+        <dt>日時</dt><dd>${esc(dateText(t))}</dd>
+        <dt>会場</dt><dd>${esc(t.venue || "未定")}</dd>
+        <dt>受け渡し</dt><dd>${esc(t.handover || "出品者と相談")}</dd>
+        <dt>出品者</dt><dd>${esc(t.sellerName)}</dd>
+        ${t.notes ? `<dt>備考</dt><dd>${esc(t.notes)}</dd>` : ""}
+      </dl>
+      <div class="buybox">
+        <div class="top"><span class="big">${yen(t.price)}${Number(t.price) > 0 ? '<small style="font-family:var(--body);font-size:13px"> /枚</small>' : ""}</span>${statusBadge(q)}</div>
+        ${q > 0 ? `
+        <form id="claimForm">
+          <div class="field"><label for="cQty">枚数</label><select id="cQty">${opts}</select></div>
+          <div class="field"><label for="cName">お名前（部署）<span class="req">必須</span></label><input id="cName" required maxlength="40" autocomplete="name"></div>
+          <div class="field"><label for="cNote">出品者への連絡メモ</label><textarea id="cNote" maxlength="200" placeholder="内線番号や受け取りやすい時間など"></textarea></div>
+          <button class="primary" type="submit" id="cBtn">譲り受けを申し込む</button>
+          <p class="msg-err" id="cErr" hidden></p>
+          <p class="hint">申込内容は出品者だけが確認できます。${claimsCount ? `現在 ${claimsCount}件の申込があります。` : ""}</p>
+        </form>` : `<p class="hint" style="margin:0">このチケットは譲渡が完了しました。</p>`}
+      </div>
+    </div>`;
+  dlg.showModal();
+  $("#dClose").onclick = () => dlg.close();
+  const f = $("#claimForm");
+  if (f) f.onsubmit = (e) => { e.preventDefault(); claim(t.id); };
+}
+dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
 
-            if (width > maxWidth) {
-              height = Math.round((height * maxWidth) / width);
-              width = maxWidth;
-            }
-
-            const canvas = document.createElement("canvas");
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0, width, height);
-
-            const dataUrl = canvas.toDataURL("image/jpeg", quality);
-            if (dataUrl.length > 750000) {
-              reject(new Error("画像サイズが大きすぎます。別の画像をお選びください。"));
-              return;
-            }
-            resolve(dataUrl);
-          };
-          img.onerror = () => reject(new Error("画像の読み込みに失敗しました。"));
-          img.src = reader.result;
-        };
-        reader.onerror = () => reject(new Error("ファイルの読み込みに失敗しました。"));
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function resetImageSelection() {
-      uploadedImageDataUrl = "";
-      imageInput.value = "";
-      imagePreview.src = "";
-      imagePreviewWrap.classList.add("hidden");
-      clearImageBtn.classList.add("hidden");
-    }
-
-    imageInput.addEventListener("change", async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) {
-        resetImageSelection();
-        return;
-      }
-      try {
-        setBannerStatus("loading", "画像を最適化しています…");
-        const compressed = await compressImageFile(file);
-        uploadedImageDataUrl = compressed;
-        imagePreview.src = compressed;
-        imagePreviewWrap.classList.remove("hidden");
-        clearImageBtn.classList.remove("hidden");
-        setBannerStatus("ok", "画像を読み込みました。出品時に一緒に保存されます。");
-      } catch (err) {
-        console.error(err);
-        resetImageSelection();
-        setBannerStatus("error", err.message || "画像の処理に失敗しました。");
-      }
-    });
-
-    clearImageBtn.addEventListener("click", () => {
-      resetImageSelection();
-    });
-
-    async function seedInitialTicketsIfEmpty() {
-      if (seededOnce) return;
-      seededOnce = true;
-      for (const sample of SAMPLE_TICKETS) {
-        await addDoc(ticketsCol, {
-          ...sample,
-          createdAt: serverTimestamp()
-        });
-      }
-    }
-
-    function renderTickets() {
-      const qText = searchQuery.trim().toLowerCase();
-
-      const filtered = allTickets.filter((t) => {
-        const qty = Number(t.quantity) || 0;
-        const price = Number(t.price) || 0;
-
-        if (currentFilter === "available" && qty <= 0) return false;
-        if (currentFilter === "free" && price !== 0) return false;
-
-        if (!qText) return true;
-        const haystack = [
-          t.title,
-          t.venue,
-          t.sellerName,
-          t.eventDate,
-          t.notes
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        return haystack.includes(qText);
-      });
-
-      ticketCountEl.textContent = `${filtered.length}件`;
-
-      if (filtered.length === 0) {
-        ticketGrid.innerHTML = "";
-        emptyState.classList.remove("hidden");
-        return;
-      }
-
-      emptyState.classList.add("hidden");
-      ticketGrid.innerHTML = filtered
-        .map((t) => {
-          const qty = Number(t.quantity) || 0;
-          const isAvailable = qty > 0;
-          const priceLabel = formatPrice(t.price);
-          const isFree = (Number(t.price) || 0) === 0;
-          const claims = Array.isArray(t.claims) ? t.claims : [];
-          const hasImage = typeof t.imageUrl === "string" && t.imageUrl.startsWith("data:image/");
-
-          return `
-            <article class="bg-white rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-md transition flex flex-col justify-between overflow-hidden">
-              <div>
-                ${
-                  hasImage
-                    ? `<div class="aspect-[16/10] w-full bg-slate-100 border-b border-slate-100 overflow-hidden">
-                        <img
-                          src="${t.imageUrl}"
-                          alt="${escapeHtml(t.title)}"
-                          class="w-full h-full object-cover"
-                        />
-                      </div>`
-                    : ""
-                }
-
-                <div class="px-5 pt-5 pb-3 flex items-center justify-between gap-2">
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold ${
-                    isAvailable
-                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                      : "bg-slate-100 text-slate-500 border border-slate-200"
-                  }">
-                    ${isAvailable ? `残り ${qty} 枚` : "譲渡完了"}
-                  </span>
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black ${
-                    isFree
-                      ? "bg-amber-100 text-amber-950"
-                      : "bg-blue-50 text-blue-900 border border-blue-100"
-                  }">
-                    ${priceLabel} / 枚
-                  </span>
-                </div>
-
-                <div class="px-5 pb-4">
-                  <h3 class="text-lg font-black text-slate-900 leading-snug">${escapeHtml(t.title)}</h3>
-                  <dl class="mt-3.5 space-y-1.5 text-xs text-slate-600">
-                    <div class="flex gap-2">
-                      <dt class="font-bold text-slate-400 w-16 shrink-0">日時・期限</dt>
-                      <dd class="text-slate-800 font-semibold">${escapeHtml(t.eventDate || "未指定")}</dd>
-                    </div>
-                    <div class="flex gap-2">
-                      <dt class="font-bold text-slate-400 w-16 shrink-0">会場・場所</dt>
-                      <dd class="text-slate-700">${escapeHtml(t.venue || "未指定")}</dd>
-                    </div>
-                    <div class="flex gap-2">
-                      <dt class="font-bold text-slate-400 w-16 shrink-0">出品者</dt>
-                      <dd class="text-slate-800 font-bold">${escapeHtml(t.sellerName || "社内メンバー")}</dd>
-                    </div>
-                    <div class="flex gap-2">
-                      <dt class="font-bold text-slate-400 w-16 shrink-0">受け渡し</dt>
-                      <dd class="text-slate-700">${escapeHtml(t.handover || "相談の上決定")}</dd>
-                    </div>
-                  </dl>
-
-                  ${
-                    t.notes
-                      ? `<p class="mt-3.5 text-xs text-slate-600 bg-slate-50 rounded-2xl p-3 border border-slate-100 leading-relaxed">${escapeHtml(t.notes)}</p>`
-                      : ""
-                  }
-
-                  ${
-                    claims.length > 0
-                      ? `
-                        <div class="mt-3.5 pt-3 border-t border-slate-100">
-                          <p class="text-[11px] font-bold text-slate-500 mb-1.5">譲り受け履歴</p>
-                          <ul class="space-y-1">
-                            ${claims
-                              .map(
-                                (c) => `
-                              <li class="text-xs text-slate-700 flex items-center justify-between gap-2 bg-blue-50/70 px-3 py-1.5 rounded-xl">
-                                <span class="font-semibold">${escapeHtml(c.requesterName)}（${Number(c.quantity) || 1}枚）</span>
-                                <span class="text-[11px] text-slate-500 truncate">${escapeHtml(c.note || "")}</span>
-                              </li>`
-                              )
-                              .join("")}
-                          </ul>
-                        </div>`
-                      : ""
-                  }
-                </div>
-              </div>
-
-              <div class="px-5 py-3.5 bg-slate-50/90 border-t border-slate-100 flex items-center justify-between gap-2">
-                <button
-                  type="button"
-                  data-delete-id="${escapeHtml(t.id)}"
-                  data-delete-title="${escapeHtml(t.title)}"
-                  class="delete-btn px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
-                >
-                  削除
-                </button>
-
-                ${
-                  isAvailable
-                    ? `<button
-                        type="button"
-                        data-claim-id="${escapeHtml(t.id)}"
-                        class="claim-btn px-4 py-2 rounded-xl text-xs font-extrabold bg-blue-600 hover:bg-blue-700 text-white shadow-xs transition cursor-pointer"
-                      >
-                        譲り受ける
-                      </button>`
-                    : `<span class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-200 text-slate-500">
-                        受付終了
-                      </span>`
-                }
-              </div>
-            </article>
-          `;
-        })
-        .join("");
-
-      document.querySelectorAll(".claim-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const id = btn.getAttribute("data-claim-id");
-          const target = allTickets.find((item) => item.id === id);
-          if (!target) return;
-          openClaimModal(target);
-        });
-      });
-
-      document.querySelectorAll(".delete-btn").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const id = btn.getAttribute("data-delete-id");
-          const title = btn.getAttribute("data-delete-title") || "このチケット";
-          if (!id) return;
-          const ok = window.confirm(`「${title}」を削除しますか？\n削除すると元に戻せません。`);
-          if (!ok) return;
-
-          try {
-            await deleteDoc(doc(db, "tickets", id));
-            setBannerStatus("ok", `「${title}」を削除しました。`);
-          } catch (err) {
-            console.error(err);
-            setBannerStatus("error", "削除に失敗しました。通信状況をご確認ください。");
-          }
-        });
-      });
-    }
-
-    // 出品モーダル制御
-    function openPostModal() {
-      postForm.reset();
-      resetImageSelection();
-      postModal.classList.remove("hidden");
-      postModal.classList.add("flex");
-    }
-
-    function closePostModal() {
-      postModal.classList.add("hidden");
-      postModal.classList.remove("flex");
-    }
-
-    document.getElementById("open-post-modal-btn").addEventListener("click", openPostModal);
-    document.getElementById("close-post-modal-btn").addEventListener("click", closePostModal);
-    document.getElementById("cancel-post-btn").addEventListener("click", closePostModal);
-
-    postForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      submitPostBtn.disabled = true;
-      submitPostBtn.textContent = "登録中…";
-
-      const fd = new FormData(postForm);
-      const price = Math.max(0, Number(fd.get("price")) || 0);
-      const quantity = Math.max(1, Number(fd.get("quantity")) || 1);
-
-      try {
-        await addDoc(ticketsCol, {
-          title: String(fd.get("title") || "").trim(),
-          eventDate: String(fd.get("eventDate") || "").trim(),
-          venue: String(fd.get("venue") || "").trim(),
-          price,
-          quantity,
-          sellerName: String(fd.get("sellerName") || "").trim(),
-          handover: String(fd.get("handover") || "").trim(),
-          notes: String(fd.get("notes") || "").trim(),
-          imageUrl: uploadedImageDataUrl || "",
-          claims: [],
-          createdAt: serverTimestamp()
-        });
-        closePostModal();
-        setBannerStatus("ok", "チケットを出品しました。リアルタイムで反映されています。");
-      } catch (err) {
-        console.error(err);
-        setBannerStatus("error", "出品の保存に失敗しました。Firestoreのルールや通信をご確認ください。");
-      } finally {
-        submitPostBtn.disabled = false;
-        submitPostBtn.textContent = "出品を登録する";
-      }
-    });
-
-    // 譲り受けモーダル制御
-    function openClaimModal(ticket) {
-      selectedTicket = ticket;
-      const maxQty = Math.max(1, Number(ticket.quantity) || 1);
-      claimQtyInput.max = String(maxQty);
-      claimQtyInput.value = "1";
-      claimSummary.innerHTML = `
-        <p class="font-black text-slate-900">${escapeHtml(ticket.title)}</p>
-        <p class="text-xs text-slate-600 mt-1">出品者：${escapeHtml(ticket.sellerName)} ／ 料金：${formatPrice(ticket.price)} / 枚 ／ 残り ${maxQty} 枚</p>
-      `;
-      claimForm.reset();
-      claimQtyInput.value = "1";
-      claimModal.classList.remove("hidden");
-      claimModal.classList.add("flex");
-    }
-
-    function closeClaimModal() {
-      selectedTicket = null;
-      claimModal.classList.add("hidden");
-      claimModal.classList.remove("flex");
-    }
-
-    document.getElementById("close-claim-modal-btn").addEventListener("click", closeClaimModal);
-    document.getElementById("cancel-claim-btn").addEventListener("click", closeClaimModal);
-
-    claimForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (!selectedTicket) return;
-
-      const maxQty = Number(selectedTicket.quantity) || 0;
-      const takeQty = Math.max(1, Math.min(maxQty, Number(claimQtyInput.value) || 1));
-      const fd = new FormData(claimForm);
-      const requesterName = String(fd.get("requesterName") || "").trim();
-      const requesterNote = String(fd.get("requesterNote") || "").trim();
-
-      const nextQty = Math.max(0, maxQty - takeQty);
-      const nextClaims = [
-        ...(Array.isArray(selectedTicket.claims) ? selectedTicket.claims : []),
-        {
-          requesterName,
-          quantity: takeQty,
-          note: requesterNote
-        }
-      ];
-
-      try {
-        const docRef = doc(db, "tickets", selectedTicket.id);
-        await updateDoc(docRef, {
-          quantity: nextQty,
-          claims: nextClaims
-        });
-        closeClaimModal();
-        setBannerStatus("ok", `${takeQty}枚の譲り受け登録が完了しました。残席を更新しました。`);
-      } catch (err) {
-        console.error(err);
-        setBannerStatus("error", "譲り受け処理に失敗しました。通信状況をご確認ください。");
-      }
-    });
-
-    // 検索・フィルタ
-    searchInput.addEventListener("input", (e) => {
-      searchQuery = e.target.value || "";
-      renderTickets();
-    });
-
-    filterButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        currentFilter = btn.getAttribute("data-filter") || "all";
-        filterButtons.forEach((b) => {
-          const active = b === btn;
-          b.className = active
-            ? "filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-xs transition cursor-pointer"
-            : "filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer";
-        });
-        renderTickets();
+async function claim(id) {
+  const n = Number($("#cQty").value);
+  const name = $("#cName").value.trim();
+  const note = $("#cNote").value.trim();
+  const btn = $("#cBtn"), err = $("#cErr");
+  if (!name) { err.textContent = "お名前を入力してください。"; err.hidden = false; return; }
+  btn.disabled = true; btn.textContent = "申し込み中…"; err.hidden = true;
+  try {
+    await runTransaction(db, async (tx) => {
+      const ref = doc(db, "tickets", id);
+      const snap = await tx.get(ref);
+      if (!snap.exists()) throw new Error("gone");
+      const d = snap.data();
+      const left = Number(d.quantity || 0);
+      if (left < n) throw new Error("short");
+      const claims = Array.isArray(d.claims) ? d.claims : [];
+      tx.update(ref, {
+        quantity: left - n,
+        claims: [...claims, { requesterName: name, quantity: n, note, at: new Date().toISOString() }]
       });
     });
+    dlg.close();
+    toast(`${n}枚の譲り受けを申し込みました。出品者からの連絡をお待ちください。`);
+  } catch (e) {
+    err.textContent = e.message === "short" ? "残り枚数が足りません。枚数を減らしてください。"
+      : e.message === "gone" ? "このチケットは削除されました。"
+      : "申し込めませんでした。通信状況を確認して、もう一度お試しください。";
+    err.hidden = false; btn.disabled = false; btn.textContent = "譲り受けを申し込む";
+  }
+}
 
-    // Firestore リアルタイム購読
-    const q = query(ticketsCol, orderBy("createdAt", "desc"));
-    onSnapshot(
-      q,
-      async (snapshot) => {
-        if (snapshot.empty && !seededOnce) {
-          await seedInitialTicketsIfEmpty();
-          return;
-        }
-        allTickets = snapshot.docs.map((d) => ({
-          id: d.id,
-          ...d.data()
-        }));
-        setBannerStatus("ok", "データベース（Firestore）とリアルタイム同期中です。");
-        renderTickets();
-      },
-      (err) => {
-        console.error(err);
-        setBannerStatus("error", "データベース（Firestore）との通信を確認してください。");
-      }
-    );
-  </script>
+function toast(text) {
+  const el = document.createElement("div");
+  el.className = "toast"; el.setAttribute("role", "status"); el.textContent = text;
+  document.body.appendChild(el); setTimeout(() => el.remove(), 4000);
+}
+
+/* Firestore リアルタイム購読 */
+onSnapshot(query(collection(db, "tickets"), orderBy("createdAt", "desc")),
+  (snap) => {
+    state.tickets = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    render();
+  },
+  () => {
+    $("#count").textContent = "";
+    $("#grid").innerHTML = `<div class="empty" style="grid-column:1/-1">チケットを読み込めませんでした。ページを再読み込みしてください。</div>`;
+  });
+</script>
 </body>
 </html>

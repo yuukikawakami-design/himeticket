@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>出品者ページ｜ヒメチケ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bar:#1E2240; --ink:#1E2240; --ink-2:#5A5F7A;
+  --accent:#C8254E; --accent-soft:#FBE8ED;
+  --paper:#F3F4F8; --surface:#FFFFFF; --line:#E1E4EC; --ok:#1F7A5A; --ok-soft:#E3F4EC; --mute:#8D91A6;
+  --display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
+  --body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bar:#0F1124; --ink:#ECEDF5; --ink-2:#A7ABC2; --accent:#F0577D; --accent-soft:#40202C;
+  --paper:#14162A; --surface:#1E2140; --line:#30345A; --ok:#62D3A6; --ok-soft:#1D3A30; --mute:#7C809A;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button{font:inherit;color:inherit;cursor:pointer}
+[hidden]{display:none!important}
+
+.bar{background:var(--bar);color:#fff}
+.bar-in{max-width:1000px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{color:#fff;text-decoration:none;font-family:var(--display);font-size:22px}
+.bar-in .sub{font-weight:700;font-size:14px;opacity:.8}
+.bar-in .sp{margin-left:auto}
+.bar a.lnk,.bar button.lnk{color:#fff;background:none;border:1.5px solid rgba(255,255,255,.45);border-radius:6px;padding:6px 12px;font-size:13px;font-weight:700;text-decoration:none}
+main{max-width:1000px;margin:0 auto;padding:24px 20px 60px}
+
+/* ログイン */
+.login{max-width:380px;margin:48px auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:28px}
+.login h1{font-size:20px;margin:0 0 6px}
+.login p{margin:0 0 18px;font-size:13px;color:var(--ink-2)}
+
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.field label{font-size:13px;font-weight:700}
+.field input,.field select,.field textarea{font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:6px;padding:9px 11px;width:100%}
+.field textarea{min-height:70px;resize:vertical}
+.req{color:var(--accent);font-size:11px;margin-left:4px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.primary{border:0;background:var(--accent);color:#fff;font-weight:700;padding:11px 18px;border-radius:8px}
+.primary:disabled{background:var(--mute);cursor:not-allowed}
+.ghost{border:1.5px solid var(--line);background:var(--surface);font-weight:700;padding:8px 14px;border-radius:8px;font-size:14px}
+.danger{border:1.5px solid var(--accent);background:none;color:var(--accent);font-weight:700;padding:8px 14px;border-radius:8px;font-size:14px}
+.err{color:var(--accent);font-size:13px;font-weight:700;margin:4px 0 0}
+
+/* 一覧 */
+.head{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.head h1{margin:0;font-size:20px;margin-right:auto}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
+.item .th{width:96px;aspect-ratio:16/10;border-radius:6px;background:var(--c);overflow:hidden;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:700}
+.item .th img{width:100%;height:100%;object-fit:cover}
+.item h2{margin:0;font-size:16px;line-height:1.4}
+.meta{margin:2px 0 0;font-size:13px;color:var(--ink-2)}
+.tags{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.tag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--paper)}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.end{background:var(--line);color:var(--ink-2)}
+.tag.new{background:var(--accent-soft);color:var(--accent)}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:40px 20px;text-align:center;color:var(--ink-2)}
+
+/* ダイアログ */
+dialog{border:0;padding:0;border-radius:12px;width:min(600px,calc(100% - 24px));max-height:calc(100% - 24px);background:var(--surface);color:var(--ink)}
+dialog::backdrop{background:rgba(15,17,36,.6)}
+.dlg-h{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface);z-index:1}
+.dlg-h h2{margin:0;font-size:18px}
+.x{border:0;background:none;font-size:22px;width:36px;height:36px}
+.dlg-b{padding:18px 20px}
+.dlg-f{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--line);position:sticky;bottom:0;background:var(--surface)}
+.preview{margin-top:8px;display:flex;align-items:center;gap:10px}
+.preview img{width:160px;aspect-ratio:16/10;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.claim{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.claim b{font-size:15px}
+.claim p{margin:4px 0 0;font-size:13px;white-space:pre-wrap;word-break:break-word}
+.claim .t{color:var(--ink-2);font-size:12px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:12px 18px;border-radius:8px;font-weight:700;font-size:14px;z-index:50}
+
+@media (max-width:640px){
+  .item{grid-template-columns:72px 1fr}
+  .item .th{width:72px}
+  .acts{grid-column:1/-1;justify-content:flex-start}
+  .two{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar-in">
+    <a class="logo" href="./">ヒメチケ</a><span class="sub">出品者ページ</span>
+    <span class="sp"></span>
+    <a class="lnk" href="./">公開ページを見る</a>
+    <button class="lnk" id="logout" hidden>ログアウト</button>
+  </div>
+</header>
+
+<main>
+  <!-- ログイン -->
+  <section class="login" id="loginView" hidden>
+    <h1>出品者ログイン</h1>
+    <p>チケットの出品・編集・削除は、登録された出品者だけが行えます。</p>
+    <form id="loginForm">
+      <div class="field"><label for="email">メールアドレス</label><input id="email" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="pw">パスワード</label><input id="pw" type="password" autocomplete="current-password" required></div>
+      <button class="primary" style="width:100%" id="loginBtn">ログイン</button>
+      <p class="err" id="loginErr" hidden></p>
+    </form>
+  </section>
+
+  <!-- 管理一覧 -->
+  <section id="adminView" hidden>
+    <div class="head">
+      <h1>出品中のチケット</h1>
+      <button class="primary" id="newBtn">＋ チケットを出品する</button>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+</main>
+
+<!-- 出品・編集フォーム -->
+<dialog id="formDlg" aria-labelledby="formTitle">
+  <form id="ticketForm">
+    <div class="dlg-h"><h2 id="formTitle">チケットを出品する</h2><button type="button" class="x" data-close aria-label="閉じる">×</button></div>
+    <div class="dlg-b">
+      <div class="field"><label for="fCat">カテゴリ</label><select id="fCat"></select></div>
+      <div class="field"><label for="fTitle">イベント名<span class="req">必須</span></label><input id="fTitle" required maxlength="80"></div>
+      <div class="two">
+        <div class="field"><label for="fDate">開催日・有効期限<span class="req">必須</span></label><input id="fDate" type="date" required></div>
+        <div class="field"><label for="fTime">開演時間</label><input id="fTime" type="time"></div>
+      </div>
+      <div class="field"><label for="fVenue">会場・利用場所</label><input id="fVenue" maxlength="80"></div>
+      <div class="two">
+        <div class="field"><label for="fPrice">1枚あたり料金（円）<span class="req">必須</span></label><input id="fPrice" type="number" min="0" step="1" required></div>
+        <div class="field"><label for="fQty">譲渡できる枚数<span class="req">必須</span></label><input id="fQty" type="number" min="0" step="1" required></div>
+      </div>
+      <div class="field"><label for="fSeller">出品者名（部署・ニックネーム）<span class="req">必須</span></label><input id="fSeller" required maxlength="40"></div>
+      <div class="field"><label for="fHand">受け渡し方法</label><input id="fHand" maxlength="80" placeholder="例：総務課で手渡し、メールで電子チケット送付"></div>
+      <div class="field"><label for="fNotes">備考・座席情報</label><textarea id="fNotes" maxlength="500"></textarea></div>
+      <div class="field">
+        <label for="fImg">画像</label>
+        <input id="fImg" type="file" accept="image/*">
+        <div class="preview" id="preview" hidden><img id="prevImg" alt="選択した画像"><button type="button" class="ghost" id="rmImg">画像を外す</button></div>
+        <p class="meta">予約番号・QRコード・氏名が写っていない画像を選んでください。自動で縮小して保存します。</p>
+      </div>
+      <p class="err" id="formErr" hidden></p>
+    </div>
+    <div class="dlg-f"><button type="button" class="ghost" data-close>キャンセル</button><button class="primary" id="saveBtn">出品する</button></div>
+  </form>
+</dialog>
+
+<!-- 申込一覧 -->
+<dialog id="claimDlg" aria-labelledby="claimTitle">
+  <div class="dlg-h"><h2 id="claimTitle">譲り受け申込</h2><button type="button" class="x" data-close aria-label="閉じる">×</button></div>
+  <div class="dlg-b" id="claimBody"></div>
+</dialog>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, query, orderBy, onSnapshot, doc, addDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { firebaseConfig, CATEGORIES } from "./firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const $ = (s) => document.querySelector(s);
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const catOf = (id) => CATEGORIES.find((c) => c.id === id) || CATEGORIES[CATEGORIES.length - 1];
+const yen = (n) => Number(n) === 0 ? "無料" : "¥" + Number(n || 0).toLocaleString("ja-JP");
+let tickets = [], unsub = null, editingId = null, imageData = "";
+
+$("#fCat").innerHTML = CATEGORIES.map((c) => `<option value="${c.id}">${c.label}</option>`).join("");
+document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => b.closest("dialog").close()));
+
+/* ログイン */
+onAuthStateChanged(auth, (user) => {
+  $("#loginView").hidden = !!user;
+  $("#adminView").hidden = !user;
+  $("#logout").hidden = !user;
+  if (user) {
+    unsub = onSnapshot(query(collection(db, "tickets"), orderBy("createdAt", "desc")),
+      (snap) => { tickets = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderList(); },
+      () => { $("#list").innerHTML = `<div class="empty">チケットを読み込めませんでした。再読み込みしてください。</div>`; });
+  } else if (unsub) { unsub(); unsub = null; }
+});
+$("#loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = $("#loginBtn"), err = $("#loginErr");
+  btn.disabled = true; err.hidden = true;
+  try { await signInWithEmailAndPassword(auth, $("#email").value.trim(), $("#pw").value); }
+  catch (ex) {
+    err.textContent = ["auth/invalid-credential","auth/wrong-password","auth/user-not-found"].includes(ex.code)
+      ? "メールアドレスまたはパスワードが違います。"
+      : ex.code === "auth/too-many-requests" ? "ログインの試行が多すぎます。しばらく待ってからお試しください。"
+      : "ログインできませんでした。通信状況を確認してください。";
+    err.hidden = false;
+  }
+  btn.disabled = false;
+});
+$("#logout").addEventListener("click", () => signOut(auth));
+
+/* 一覧 */
+function renderList() {
+  if (!tickets.length) { $("#list").innerHTML = `<div class="empty">出品中のチケットはありません。「＋ チケットを出品する」から登録できます。</div>`; return; }
+  $("#list").innerHTML = tickets.map((t) => {
+    const cat = catOf(t.category);
+    const q = Number(t.quantity || 0);
+    const cn = Array.isArray(t.claims) ? t.claims.length : 0;
+    return `<div class="item" style="--c:${cat.color}">
+      <div class="th">${t.imageUrl ? `<img src="${esc(t.imageUrl)}" alt="">` : esc(cat.label)}</div>
+      <div>
+        <h2>${esc(t.title)}</h2>
+        <p class="meta">${esc(t.eventDate)}${t.eventTime ? " " + esc(t.eventTime) : ""}／${esc(t.venue || "会場未定")}／${yen(t.price)}／出品者：${esc(t.sellerName)}</p>
+        <div class="tags">
+          <span class="tag">${esc(cat.label)}</span>
+          ${q > 0 ? `<span class="tag ok">残り${q}枚</span>` : `<span class="tag end">譲渡完了</span>`}
+          ${cn ? `<span class="tag new">申込 ${cn}件</span>` : ""}
+        </div>
+      </div>
+      <div class="acts">
+        <button class="ghost" data-act="claims" data-id="${t.id}">申込を見る</button>
+        <button class="ghost" data-act="edit" data-id="${t.id}">編集</button>
+        <button class="danger" data-act="del" data-id="${t.id}">削除</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+$("#list").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const t = tickets.find((x) => x.id === b.dataset.id); if (!t) return;
+  if (b.dataset.act === "edit") openForm(t);
+  if (b.dataset.act === "claims") openClaims(t);
+  if (b.dataset.act === "del") {
+    if (!confirm(`「${t.title}」を削除します。申込履歴も消え、元に戻せません。削除しますか？`)) return;
+    try { await deleteDoc(doc(db, "tickets", t.id)); toast("削除しました。"); }
+    catch (ex) { alert(permMsg(ex, "削除できませんでした。")); }
+  }
+});
+
+/* 申込一覧 */
+function openClaims(t) {
+  const cs = Array.isArray(t.claims) ? t.claims : [];
+  $("#claimTitle").textContent = `譲り受け申込：${t.title}`;
+  $("#claimBody").innerHTML = cs.length ? cs.map((c) => `
+    <div class="claim"><b>${esc(c.requesterName)}</b>　${Number(c.quantity || 0)}枚
+      ${c.at ? `<span class="t">　${new Date(c.at).toLocaleString("ja-JP")}</span>` : ""}
+      ${c.note ? `<p>${esc(c.note)}</p>` : ""}
+    </div>`).join("") : `<p class="meta">まだ申込はありません。</p>`;
+  $("#claimDlg").showModal();
+}
+
+/* 旧形式の日付（例：2026年12月20日 18:00開演）を入力欄の形式に変換 */
+function toInputDate(s) {
+  const str = String(s || "");
+  const m = str.match(/(\d{4})\s*[-\/年.]\s*(\d{1,2})\s*[-\/月.]\s*(\d{1,2})/);
+  const tm = str.match(/(\d{1,2}):(\d{2})/);
+  const pad = (n) => String(n).padStart(2, "0");
+  return {
+    date: m ? `${m[1]}-${pad(m[2])}-${pad(m[3])}` : "",
+    time: tm ? `${pad(tm[1])}:${tm[2]}` : ""
+  };
+}
+
+/* 出品・編集フォーム */
+function openForm(t = null) {
+  editingId = t?.id || null;
+  $("#formTitle").textContent = t ? "チケットを編集する" : "チケットを出品する";
+  $("#saveBtn").textContent = t ? "変更を保存する" : "出品する";
+  $("#fCat").value = t?.category || "other";
+  $("#fTitle").value = t?.title || "";
+  const dt = toInputDate(t?.eventDate);
+  $("#fDate").value = dt.date;
+  $("#fTime").value = t?.eventTime || dt.time;
+  $("#fVenue").value = t?.venue || "";
+  $("#fPrice").value = t ? Number(t.price || 0) : "";
+  $("#fQty").value = t ? Number(t.quantity || 0) : "";
+  $("#fSeller").value = t?.sellerName || "";
+  $("#fHand").value = t?.handover || "";
+  $("#fNotes").value = t?.notes || "";
+  $("#fImg").value = "";
+  setImage(t?.imageUrl || "");
+  $("#formErr").hidden = true;
+  $("#formDlg").showModal();
+}
+$("#newBtn").addEventListener("click", () => openForm());
+
+function setImage(url) {
+  imageData = url;
+  $("#preview").hidden = !url;
+  $("#prevImg").src = url || "";
+}
+$("#rmImg").addEventListener("click", () => { $("#fImg").value = ""; setImage(""); });
+$("#fImg").addEventListener("change", async (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const url = await resize(file, 800, 0.72);
+    if (url.length > 900000) throw new Error("big");
+    setImage(url);
+  } catch {
+    $("#formErr").textContent = "画像を読み込めませんでした。別の画像（JPEG・PNG）を選んでください。";
+    $("#formErr").hidden = false; e.target.value = "";
+  }
+});
+function resize(file, maxW, quality) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, maxW / img.width);
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(img.src);
+      res(c.toDataURL("image/jpeg", quality));
+    };
+    img.onerror = rej;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+$("#ticketForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const err = $("#formErr"), btn = $("#saveBtn");
+  const data = {
+    category: $("#fCat").value,
+    title: $("#fTitle").value.trim(),
+    eventDate: $("#fDate").value,
+    eventTime: $("#fTime").value,
+    venue: $("#fVenue").value.trim(),
+    price: Math.max(0, Math.floor(Number($("#fPrice").value))),
+    quantity: Math.max(0, Math.floor(Number($("#fQty").value))),
+    sellerName: $("#fSeller").value.trim(),
+    handover: $("#fHand").value.trim(),
+    notes: $("#fNotes").value.trim(),
+    imageUrl: imageData
+  };
+  if (!data.title || !data.eventDate || !data.sellerName) { err.textContent = "必須項目を入力してください。"; err.hidden = false; return; }
+  btn.disabled = true; err.hidden = true;
+  try {
+    if (editingId) {
+      await updateDoc(doc(db, "tickets", editingId), data);
+      toast("変更を保存しました。");
+    } else {
+      await addDoc(collection(db, "tickets"), { ...data, claims: [], ownerEmail: auth.currentUser?.email || "", createdAt: serverTimestamp() });
+      toast("出品しました。");
+    }
+    $("#formDlg").close();
+  } catch (ex) {
+    err.textContent = permMsg(ex, "保存できませんでした。通信状況を確認してください。");
+    err.hidden = false;
+  }
+  btn.disabled = false;
+});
+
+function permMsg(ex, fallback) {
+  return ex?.code === "permission-denied" ? "このアカウントには出品・編集の権限がありません。管理者に出品者登録を依頼してください。" : fallback;
+}
+function toast(text) {
+  const el = document.createElement("div");
+  el.className = "toast"; el.setAttribute("role", "status"); el.textContent = text;
+  document.body.appendChild(el); setTimeout(() => el.remove(), 3000);
+}
+</script>
+</body>
+</html>
