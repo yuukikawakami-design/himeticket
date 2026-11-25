@@ -1,13 +1,12 @@
 // Firebase の接続設定（ヒメチケ：himeticket-523fa）
 export const firebaseConfig = {
-  apiKey: "AIzaSyA2u9hI8R0_yG7qK1vX5mN3pL8oW4eT6zY",
+  apiKey: "AIzaSyC1je3R9cnh-xSFtEn02xekA-Ffx48i-i8",
   authDomain: "himeticket-523fa.firebaseapp.com",
   projectId: "himeticket-523fa",
-  storageBucket: "himeticket-523fa.appspot.com",
-  messagingSenderId: "849201736512",
-  appId: "1:849201736512:web:9c8d7e6f5a4b3c2d1e0f9a"
-};
-
+  storageBucket: "himeticket-523fa.firebasestorage.app",
+  messagingSenderId: "1012596366736",
+  appId: "1:1012596366736:web:e0b91984d9e261e57c2715"
+    
 // カテゴリ（公開ページ・出品者ページ共通）
 export const CATEGORIES = [
   { id: "concert", label: "コンサート", color: "#C8254E" },
