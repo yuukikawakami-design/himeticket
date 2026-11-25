@@ -7,7 +7,6 @@ export const firebaseConfig = {
   messagingSenderId: "1012596366736",
   appId: "1:1012596366736:web:e0b91984d9e261e57c2715"
 };
-    
 // カテゴリ（公開ページ・出品者ページ共通）
 export const CATEGORIES = [
   { id: "concert", label: "コンサート", color: "#C8254E" },
