@@ -1,6 +1,6 @@
 // Firebase の接続設定（ヒメチケ：himeticket-523fa）
 export const firebaseConfig = {
-  apiKey: "AIzaSyC1je3R9cnh-…",
+  apiKey: "AIzaSyC1je3R9cnh-xSFtEn02xekA-Ffx48i-i8",
   authDomain: "himeticket-523fa.firebaseapp.com",
   projectId: "himeticket-523fa",
   storageBucket: "himeticket-523fa.firebasestorage.app",
