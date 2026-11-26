@@ -222,7 +222,7 @@ function renderList() {
         <p class="meta">${esc(t.eventDate)}${t.eventTime ? " " + esc(t.eventTime) : ""}／${esc(t.venue || "会場未定")}／${yen(t.price)}／出品者：${esc(t.sellerName)}</p>
         <div class="tags">
           <span class="tag">${esc(cat.label)}</span>
-          ${q > 0 ? `<span class="tag ok">残り${q}枚</span>` : `<span class="tag end">譲渡完了</span>`}
+          ${q > 0 ? `<span class="tag ok">残り${q}枚</span>` : `<span class="tag end">完売</span>`}
           ${cn ? `<span class="tag new">申込 ${cn}件</span>` : ""}
         </div>
       </div>
